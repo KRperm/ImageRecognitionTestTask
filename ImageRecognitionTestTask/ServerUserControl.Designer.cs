@@ -15,6 +15,7 @@
         {
             if (disposing && (components != null))
             {
+                OnDisposing();
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -28,57 +29,116 @@
         /// </summary>
         private void InitializeComponent()
         {
-            stackPanel1 = new DevExpress.Utils.Layout.StackPanel();
-            textEdit1 = new DevExpress.XtraEditors.TextEdit();
-            simpleButton1 = new DevExpress.XtraEditors.SimpleButton();
-            ((System.ComponentModel.ISupportInitialize)stackPanel1).BeginInit();
-            stackPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit1.Properties).BeginInit();
+            layoutControl1 = new DevExpress.XtraLayout.LayoutControl();
+            PortEdit = new DevExpress.XtraEditors.SpinEdit();
+            StartServerButton = new DevExpress.XtraEditors.SimpleButton();
+            Root = new DevExpress.XtraLayout.LayoutControlGroup();
+            layoutControlItem1 = new DevExpress.XtraLayout.LayoutControlItem();
+            emptySpaceItem1 = new DevExpress.XtraLayout.EmptySpaceItem();
+            layoutControlItem2 = new DevExpress.XtraLayout.LayoutControlItem();
+            ((System.ComponentModel.ISupportInitialize)layoutControl1).BeginInit();
+            layoutControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)PortEdit.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)Root).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)layoutControlItem1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)emptySpaceItem1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)layoutControlItem2).BeginInit();
             SuspendLayout();
             // 
-            // stackPanel1
+            // layoutControl1
             // 
-            stackPanel1.Controls.Add(textEdit1);
-            stackPanel1.Controls.Add(simpleButton1);
-            stackPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            stackPanel1.Location = new System.Drawing.Point(0, 0);
-            stackPanel1.Name = "stackPanel1";
-            stackPanel1.Size = new System.Drawing.Size(668, 549);
-            stackPanel1.TabIndex = 0;
-            stackPanel1.UseSkinIndents = true;
+            layoutControl1.Controls.Add(PortEdit);
+            layoutControl1.Controls.Add(StartServerButton);
+            layoutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+            layoutControl1.Location = new System.Drawing.Point(0, 0);
+            layoutControl1.Name = "layoutControl1";
+            layoutControl1.Root = Root;
+            layoutControl1.Size = new System.Drawing.Size(463, 366);
+            layoutControl1.TabIndex = 0;
+            layoutControl1.Text = "layoutControl1";
             // 
-            // textEdit1
+            // PortEdit
             // 
-            textEdit1.Location = new System.Drawing.Point(13, 264);
-            textEdit1.Name = "textEdit1";
-            textEdit1.Size = new System.Drawing.Size(100, 20);
-            textEdit1.TabIndex = 1;
+            PortEdit.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
+            PortEdit.Location = new System.Drawing.Point(12, 28);
+            PortEdit.Name = "PortEdit";
+            PortEdit.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            PortEdit.Properties.MaskSettings.Set("mask", "d");
+            PortEdit.Properties.MaxValue = new decimal(new int[] { 65535, 0, 0, 0 });
+            PortEdit.Size = new System.Drawing.Size(50, 20);
+            PortEdit.StyleController = layoutControl1;
+            PortEdit.TabIndex = 5;
             // 
-            // simpleButton1
+            // StartServerButton
             // 
-            simpleButton1.Location = new System.Drawing.Point(117, 262);
-            simpleButton1.Name = "simpleButton1";
-            simpleButton1.Size = new System.Drawing.Size(75, 23);
-            simpleButton1.TabIndex = 0;
-            simpleButton1.Text = "simpleButton1";
+            StartServerButton.Location = new System.Drawing.Point(66, 12);
+            StartServerButton.Name = "StartServerButton";
+            StartServerButton.Size = new System.Drawing.Size(385, 22);
+            StartServerButton.StyleController = layoutControl1;
+            StartServerButton.TabIndex = 4;
+            StartServerButton.Text = "Запуск";
             // 
-            // ServerPage
+            // Root
+            // 
+            Root.EnableIndentsWithoutBorders = DevExpress.Utils.DefaultBoolean.True;
+            Root.GroupBordersVisible = false;
+            Root.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] { layoutControlItem1, emptySpaceItem1, layoutControlItem2 });
+            Root.Name = "Root";
+            Root.Size = new System.Drawing.Size(463, 366);
+            Root.TextVisible = false;
+            // 
+            // layoutControlItem1
+            // 
+            layoutControlItem1.Control = StartServerButton;
+            layoutControlItem1.Location = new System.Drawing.Point(54, 0);
+            layoutControlItem1.Name = "layoutControlItem1";
+            layoutControlItem1.Size = new System.Drawing.Size(389, 40);
+            layoutControlItem1.TextSize = new System.Drawing.Size(0, 0);
+            layoutControlItem1.TextVisible = false;
+            // 
+            // emptySpaceItem1
+            // 
+            emptySpaceItem1.AllowHotTrack = false;
+            emptySpaceItem1.Location = new System.Drawing.Point(0, 40);
+            emptySpaceItem1.Name = "emptySpaceItem1";
+            emptySpaceItem1.Size = new System.Drawing.Size(443, 306);
+            emptySpaceItem1.TextSize = new System.Drawing.Size(0, 0);
+            // 
+            // layoutControlItem2
+            // 
+            layoutControlItem2.Control = PortEdit;
+            layoutControlItem2.Location = new System.Drawing.Point(0, 0);
+            layoutControlItem2.Name = "layoutControlItem2";
+            layoutControlItem2.Size = new System.Drawing.Size(54, 40);
+            layoutControlItem2.Text = "Порт";
+            layoutControlItem2.TextLocation = DevExpress.Utils.Locations.Top;
+            layoutControlItem2.TextSize = new System.Drawing.Size(25, 13);
+            // 
+            // ServerUserControl
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            Controls.Add(stackPanel1);
-            Name = "ServerPage";
-            Size = new System.Drawing.Size(668, 549);
-            ((System.ComponentModel.ISupportInitialize)stackPanel1).EndInit();
-            stackPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)textEdit1.Properties).EndInit();
+            Controls.Add(layoutControl1);
+            Name = "ServerUserControl";
+            Size = new System.Drawing.Size(463, 366);
+            ((System.ComponentModel.ISupportInitialize)layoutControl1).EndInit();
+            layoutControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)PortEdit.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)Root).EndInit();
+            ((System.ComponentModel.ISupportInitialize)layoutControlItem1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)emptySpaceItem1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)layoutControlItem2).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
 
-        private DevExpress.Utils.Layout.StackPanel stackPanel1;
-        private DevExpress.XtraEditors.TextEdit textEdit1;
-        private DevExpress.XtraEditors.SimpleButton simpleButton1;
+        private DevExpress.XtraLayout.LayoutControl layoutControl1;
+        private DevExpress.XtraEditors.SimpleButton StartServerButton;
+        private DevExpress.XtraLayout.LayoutControlGroup Root;
+        private DevExpress.XtraLayout.LayoutControlItem layoutControlItem1;
+        private DevExpress.XtraLayout.EmptySpaceItem emptySpaceItem1;
+        private DevExpress.XtraEditors.SpinEdit PortEdit;
+        private DevExpress.XtraLayout.LayoutControlItem layoutControlItem2;
     }
 }

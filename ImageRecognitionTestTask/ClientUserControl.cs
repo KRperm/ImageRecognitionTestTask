@@ -1,59 +1,54 @@
-﻿using DevExpress.Utils.CommonDialogs.Internal;
-using DevExpress.XtraBars.Docking2010;
-using DevExpress.XtraBars.Docking2010.Views;
-using DevExpress.XtraEditors;
-using DevExpress.XtraSpreadsheet.Commands;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
+﻿using DevExpress.Utils.MVVM;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ImageRecognitionTestTask
 {
     public partial class ClientUserControl : DevExpress.XtraEditors.XtraUserControl
     {
-        private TcpClient _client;
-
         public ClientUserControl()
         {
             InitializeComponent();
-        }
-
-        private void ConnectButton_Click(object sender, EventArgs e)
-        {
-            var uri = new Uri(ConnectTextEdit.Text);
-            var ip = IPAddress.Parse(uri.Host);
-            var endPoint = new IPEndPoint(ip, uri.Port);
-            _client = new TcpClient();
-            _client.Connect(endPoint);
-
-            MessagePanel.Enabled = true;
-        }
-
-        public void SelectPathButton_Click(object sender, EventArgs e)
-        {
-            var fileDialog = new OpenFileDialog
+            var mvvmContext = new MVVMContext
             {
-                Filter = "Изображения (png, jpg, bmp)|*.png;*.jpg;*.bmp"
+                ContainerControl = this,
+                ViewModelType = typeof(ClientViewModel),
             };
-
-            var dialogResult = fileDialog.ShowDialog();
-            if (dialogResult == System.Windows.Forms.DialogResult.OK)
-            {
-                MessageTextEdit.Text = fileDialog.FileName;
-            }
+            var fluent = mvvmContext.OfType<ClientViewModel>();
+            fluent.BindCommand(ConnectButton, x => x.ConnectAsync());
+            fluent.BindCommand(SendMessageButton, x => x.SendMessageAsync());
+            fluent.BindCommand(FindFileButton, x => x.SetFilePathMessage());
+            fluent.SetBinding(ServerStatusLabel, e => e.Text, x => x.Status,
+                modelState =>
+                {
+                    return modelState switch
+                    {
+                        ClientViewModel.ConnectionStatus.Disconnected => "Отключено",
+                        ClientViewModel.ConnectionStatus.Connected => "ОК",
+                        ClientViewModel.ConnectionStatus.Connecting => "Соединяю",
+                        _ => "Неизвестный статус",
+                    };
+                });
+            fluent.SetBinding(ServerResponseLabel, e => e.Text, x => x.ServerResponse);
+            fluent.SetBinding(MessageEdit, e => e.Text, x => x.Message);
+            fluent.SetBinding(MessageEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Connected);
+            fluent.SetBinding(IpEdit, e => e.Text, x => x.ServerAddress, 
+                modelState => modelState?.ToString(),
+                editState => IPAddress.TryParse(editState, out var address) ? address : null);
+            fluent.SetBinding(IpEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Disconnected);
+            fluent.SetBinding(PortEdit, e => e.Value, x => x.ServerPort);
+            fluent.SetBinding(PortEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Disconnected);
         }
 
-        private void SendMessageButton_Click(object sender, EventArgs e)
+        private void OnDisposing()
         {
-
+            var mvvmContext = MVVMContext.FromControl(this);
+            if (mvvmContext is null)
+            {
+                return;
+            }
+            var viewModel = mvvmContext.GetViewModel<ClientViewModel>();
+            viewModel.Dispose();
+            mvvmContext.Dispose();
         }
     }
 }

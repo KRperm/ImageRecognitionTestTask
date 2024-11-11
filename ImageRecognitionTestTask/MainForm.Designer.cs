@@ -30,17 +30,16 @@
         {
             components = new System.ComponentModel.Container();
             DocumentManager = new DevExpress.XtraBars.Docking2010.DocumentManager(components);
-            noDocumentsView1 = new DevExpress.XtraBars.Docking2010.Views.NoDocuments.NoDocumentsView(components);
             tabbedView1 = new DevExpress.XtraBars.Docking2010.Views.Tabbed.TabbedView(components);
             ((System.ComponentModel.ISupportInitialize)DocumentManager).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)noDocumentsView1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)tabbedView1).BeginInit();
             SuspendLayout();
             // 
             // DocumentManager
             // 
-            DocumentManager.View = noDocumentsView1;
-            DocumentManager.ViewCollection.AddRange(new DevExpress.XtraBars.Docking2010.Views.BaseView[] { noDocumentsView1, tabbedView1 });
+            DocumentManager.ContainerControl = this;
+            DocumentManager.View = tabbedView1;
+            DocumentManager.ViewCollection.AddRange(new DevExpress.XtraBars.Docking2010.Views.BaseView[] { tabbedView1 });
             // 
             // MainForm
             // 
@@ -50,14 +49,13 @@
             Name = "MainForm";
             Text = "MainForm";
             ((System.ComponentModel.ISupportInitialize)DocumentManager).EndInit();
-            ((System.ComponentModel.ISupportInitialize)noDocumentsView1).EndInit();
             ((System.ComponentModel.ISupportInitialize)tabbedView1).EndInit();
             ResumeLayout(false);
         }
 
         #endregion
+
         private DevExpress.XtraBars.Docking2010.DocumentManager DocumentManager;
         private DevExpress.XtraBars.Docking2010.Views.Tabbed.TabbedView tabbedView1;
-        private DevExpress.XtraBars.Docking2010.Views.NoDocuments.NoDocumentsView noDocumentsView1;
     }
 }

@@ -1,13 +1,4 @@
-﻿using DevExpress.XtraEditors;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using DevExpress.Utils.MVVM;
 
 namespace ImageRecognitionTestTask
 {
@@ -16,6 +7,26 @@ namespace ImageRecognitionTestTask
         public ServerUserControl()
         {
             InitializeComponent();
+            var mvvmContext = new MVVMContext
+            {
+                ContainerControl = this,
+                ViewModelType = typeof(ServerViewModel),
+            };
+            var fluent = mvvmContext.OfType<ServerViewModel>();
+            fluent.BindCommand(StartServerButton, x => x.StartServerAsync());
+            fluent.SetBinding(PortEdit, e => e.Value, x => x.Port);
+        }
+
+        private void OnDisposing()
+        {
+            var mvvmContext = MVVMContext.FromControl(this);
+            if (mvvmContext is null)
+            {
+                return;
+            }
+            var viewModel = mvvmContext.GetViewModel<ClientViewModel>();
+            viewModel.Dispose();
+            mvvmContext.Dispose();
         }
     }
 }

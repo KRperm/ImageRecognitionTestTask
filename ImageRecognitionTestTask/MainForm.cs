@@ -29,6 +29,7 @@ namespace ImageRecognitionTestTask
 
         private void SetMainUserControl(Control control)
         {
+            control.Dock = DockStyle.Fill;
             Controls.Clear();
             Controls.Add(control);
             DocumentManager.ClientControl = control;
