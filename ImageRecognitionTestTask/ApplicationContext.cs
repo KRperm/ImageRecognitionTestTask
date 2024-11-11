@@ -12,7 +12,7 @@ namespace ImageRecognitionTestTask
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=data.db");
+            optionsBuilder.UseSqlite("Data Source=database.sqlite");
         }
     }
 }

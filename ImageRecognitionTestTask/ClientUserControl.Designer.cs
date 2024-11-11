@@ -29,16 +29,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DevExpress.XtraLayout.ColumnDefinition columnDefinition1 = new DevExpress.XtraLayout.ColumnDefinition();
-            DevExpress.XtraLayout.ColumnDefinition columnDefinition2 = new DevExpress.XtraLayout.ColumnDefinition();
-            DevExpress.XtraLayout.ColumnDefinition columnDefinition3 = new DevExpress.XtraLayout.ColumnDefinition();
-            DevExpress.XtraLayout.ColumnDefinition columnDefinition4 = new DevExpress.XtraLayout.ColumnDefinition();
-            DevExpress.XtraLayout.ColumnDefinition columnDefinition5 = new DevExpress.XtraLayout.ColumnDefinition();
-            DevExpress.XtraLayout.ColumnDefinition columnDefinition6 = new DevExpress.XtraLayout.ColumnDefinition();
-            DevExpress.XtraLayout.RowDefinition rowDefinition1 = new DevExpress.XtraLayout.RowDefinition();
-            DevExpress.XtraLayout.RowDefinition rowDefinition2 = new DevExpress.XtraLayout.RowDefinition();
-            DevExpress.XtraLayout.RowDefinition rowDefinition3 = new DevExpress.XtraLayout.RowDefinition();
-            DevExpress.XtraLayout.RowDefinition rowDefinition4 = new DevExpress.XtraLayout.RowDefinition();
             layoutControl1 = new DevExpress.XtraLayout.LayoutControl();
             PortEdit = new DevExpress.XtraEditors.SpinEdit();
             ServerResponseLabel = new DevExpress.XtraEditors.LabelControl();
@@ -57,6 +47,7 @@
             layoutControlItem3 = new DevExpress.XtraLayout.LayoutControlItem();
             layoutControlItem8 = new DevExpress.XtraLayout.LayoutControlItem();
             layoutControlItem9 = new DevExpress.XtraLayout.LayoutControlItem();
+            emptySpaceItem1 = new DevExpress.XtraLayout.EmptySpaceItem();
             ((System.ComponentModel.ISupportInitialize)layoutControl1).BeginInit();
             layoutControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)PortEdit.Properties).BeginInit();
@@ -71,6 +62,7 @@
             ((System.ComponentModel.ISupportInitialize)layoutControlItem3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem8).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem9).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)emptySpaceItem1).BeginInit();
             SuspendLayout();
             // 
             // layoutControl1
@@ -88,25 +80,25 @@
             layoutControl1.Name = "layoutControl1";
             layoutControl1.OptionsCustomizationForm.DesignTimeCustomizationFormPositionAndSize = new System.Drawing.Rectangle(3104, 218, 650, 400);
             layoutControl1.Root = Root;
-            layoutControl1.Size = new System.Drawing.Size(776, 425);
+            layoutControl1.Size = new System.Drawing.Size(500, 200);
             layoutControl1.TabIndex = 0;
             layoutControl1.Text = "layoutControl1";
             // 
             // PortEdit
             // 
             PortEdit.EditValue = new decimal(new int[] { 2100, 0, 0, 0 });
-            PortEdit.Location = new System.Drawing.Point(390, 28);
+            PortEdit.Location = new System.Drawing.Point(110, 40);
             PortEdit.Name = "PortEdit";
             PortEdit.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
             PortEdit.Properties.MaskSettings.Set("mask", "d");
             PortEdit.Properties.MaxValue = new decimal(new int[] { 65535, 0, 0, 0 });
-            PortEdit.Size = new System.Drawing.Size(96, 20);
+            PortEdit.Size = new System.Drawing.Size(108, 20);
             PortEdit.StyleController = layoutControl1;
-            PortEdit.TabIndex = 7;
+            PortEdit.TabIndex = 2;
             // 
             // ServerResponseLabel
             // 
-            ServerResponseLabel.Location = new System.Drawing.Point(430, 92);
+            ServerResponseLabel.Location = new System.Drawing.Point(234, 160);
             ServerResponseLabel.Name = "ServerResponseLabel";
             ServerResponseLabel.Size = new System.Drawing.Size(32, 13);
             ServerResponseLabel.StyleController = layoutControl1;
@@ -115,26 +107,26 @@
             // 
             // MessageEdit
             // 
-            MessageEdit.Location = new System.Drawing.Point(222, 68);
+            MessageEdit.Location = new System.Drawing.Point(12, 107);
             MessageEdit.Name = "MessageEdit";
-            MessageEdit.Size = new System.Drawing.Size(164, 20);
+            MessageEdit.Size = new System.Drawing.Size(94, 20);
             MessageEdit.StyleController = layoutControl1;
             MessageEdit.TabIndex = 4;
             // 
             // ConnectButton
             // 
-            ConnectButton.Location = new System.Drawing.Point(490, 12);
+            ConnectButton.Location = new System.Drawing.Point(222, 12);
             ConnectButton.Name = "ConnectButton";
-            ConnectButton.Size = new System.Drawing.Size(96, 22);
+            ConnectButton.Size = new System.Drawing.Size(93, 61);
             ConnectButton.StyleController = layoutControl1;
             ConnectButton.TabIndex = 3;
             ConnectButton.Text = "Подключиться";
             // 
             // FindFileButton
             // 
-            FindFileButton.Location = new System.Drawing.Point(390, 52);
+            FindFileButton.Location = new System.Drawing.Point(110, 77);
             FindFileButton.Name = "FindFileButton";
-            FindFileButton.Size = new System.Drawing.Size(96, 22);
+            FindFileButton.Size = new System.Drawing.Size(108, 64);
             FindFileButton.StyleController = layoutControl1;
             FindFileButton.TabIndex = 5;
             FindFileButton.Text = "Найти файл";
@@ -142,29 +134,29 @@
             // IpEdit
             // 
             IpEdit.EditValue = "";
-            IpEdit.Location = new System.Drawing.Point(222, 28);
+            IpEdit.Location = new System.Drawing.Point(12, 40);
             IpEdit.Name = "IpEdit";
             IpEdit.Properties.MaskSettings.Set("MaskManagerType", typeof(DevExpress.Data.Mask.RegExpMaskManager));
             IpEdit.Properties.MaskSettings.Set("MaskManagerSignature", "isOptimistic=False");
             IpEdit.Properties.MaskSettings.Set("mask", "(([01]?[0-9]?[0-9])|(2[0-4][0-9])|(25[0-5]))\\.(([01]?[0-9]?[0-9])|(2[0-4][0-9])|(25[0-5]))\\.(([01]?[0-9]?[0-9])|(2[0-4][0-9])|(25[0-5]))\\.(([01]?[0-9]?[0-9])|(2[0-4][0-9])|(25[0-5]))");
-            IpEdit.Size = new System.Drawing.Size(164, 20);
+            IpEdit.Size = new System.Drawing.Size(94, 20);
             IpEdit.StyleController = layoutControl1;
             IpEdit.TabIndex = 0;
             // 
             // ServerStatusLabel
             // 
-            ServerStatusLabel.Location = new System.Drawing.Point(590, 12);
+            ServerStatusLabel.Location = new System.Drawing.Point(319, 12);
             ServerStatusLabel.Name = "ServerStatusLabel";
-            ServerStatusLabel.Size = new System.Drawing.Size(80, 13);
+            ServerStatusLabel.Size = new System.Drawing.Size(169, 61);
             ServerStatusLabel.StyleController = layoutControl1;
             ServerStatusLabel.TabIndex = 1;
             ServerStatusLabel.Text = "Статус сервера";
             // 
             // SendMessageButton
             // 
-            SendMessageButton.Location = new System.Drawing.Point(490, 52);
+            SendMessageButton.Location = new System.Drawing.Point(222, 77);
             SendMessageButton.Name = "SendMessageButton";
-            SendMessageButton.Size = new System.Drawing.Size(96, 22);
+            SendMessageButton.Size = new System.Drawing.Size(93, 64);
             SendMessageButton.StyleController = layoutControl1;
             SendMessageButton.TabIndex = 6;
             SendMessageButton.Text = "Отправить";
@@ -173,53 +165,36 @@
             // 
             Root.EnableIndentsWithoutBorders = DevExpress.Utils.DefaultBoolean.True;
             Root.GroupBordersVisible = false;
-            Root.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] { layoutControlItem4, layoutControlItem7, layoutControlItem6, layoutControlItem5, layoutControlItem2, layoutControlItem3, layoutControlItem8, layoutControlItem9 });
-            Root.LayoutMode = DevExpress.XtraLayout.Utils.LayoutMode.Table;
+            Root.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] { layoutControlItem4, layoutControlItem7, layoutControlItem6, layoutControlItem5, layoutControlItem2, layoutControlItem3, layoutControlItem8, layoutControlItem9, emptySpaceItem1 });
             Root.Name = "Root";
-            columnDefinition1.SizeType = System.Windows.Forms.SizeType.Percent;
-            columnDefinition1.Width = 25D;
-            columnDefinition2.SizeType = System.Windows.Forms.SizeType.Percent;
-            columnDefinition2.Width = 20D;
-            columnDefinition3.SizeType = System.Windows.Forms.SizeType.Absolute;
-            columnDefinition3.Width = 100D;
-            columnDefinition4.SizeType = System.Windows.Forms.SizeType.Absolute;
-            columnDefinition4.Width = 100D;
-            columnDefinition5.SizeType = System.Windows.Forms.SizeType.Percent;
-            columnDefinition5.Width = 10D;
-            columnDefinition6.SizeType = System.Windows.Forms.SizeType.Percent;
-            columnDefinition6.Width = 25D;
-            Root.OptionsTableLayoutGroup.ColumnDefinitions.AddRange(new DevExpress.XtraLayout.ColumnDefinition[] { columnDefinition1, columnDefinition2, columnDefinition3, columnDefinition4, columnDefinition5, columnDefinition6 });
-            rowDefinition1.Height = 40D;
-            rowDefinition1.SizeType = System.Windows.Forms.SizeType.AutoSize;
-            rowDefinition2.Height = 40D;
-            rowDefinition2.SizeType = System.Windows.Forms.SizeType.AutoSize;
-            rowDefinition3.Height = 17D;
-            rowDefinition3.SizeType = System.Windows.Forms.SizeType.AutoSize;
-            rowDefinition4.Height = 100D;
-            rowDefinition4.SizeType = System.Windows.Forms.SizeType.Percent;
-            Root.OptionsTableLayoutGroup.RowDefinitions.AddRange(new DevExpress.XtraLayout.RowDefinition[] { rowDefinition1, rowDefinition2, rowDefinition3, rowDefinition4 });
-            Root.Size = new System.Drawing.Size(892, 408);
+            Root.Size = new System.Drawing.Size(500, 200);
             Root.TextVisible = false;
             // 
             // layoutControlItem4
             // 
+            layoutControlItem4.ContentVertAlignment = DevExpress.Utils.VertAlignment.Center;
             layoutControlItem4.Control = IpEdit;
-            layoutControlItem4.Location = new System.Drawing.Point(210, 0);
+            layoutControlItem4.Location = new System.Drawing.Point(0, 0);
+            layoutControlItem4.MinSize = new System.Drawing.Size(62, 40);
             layoutControlItem4.Name = "layoutControlItem4";
             layoutControlItem4.OptionsTableLayoutItem.ColumnIndex = 1;
-            layoutControlItem4.Size = new System.Drawing.Size(168, 40);
+            layoutControlItem4.Size = new System.Drawing.Size(98, 65);
+            layoutControlItem4.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem4.Text = "Ip";
             layoutControlItem4.TextLocation = DevExpress.Utils.Locations.Top;
             layoutControlItem4.TextSize = new System.Drawing.Size(58, 13);
             // 
             // layoutControlItem7
             // 
+            layoutControlItem7.ContentVertAlignment = DevExpress.Utils.VertAlignment.Center;
             layoutControlItem7.Control = MessageEdit;
-            layoutControlItem7.Location = new System.Drawing.Point(210, 40);
+            layoutControlItem7.Location = new System.Drawing.Point(0, 65);
+            layoutControlItem7.MinSize = new System.Drawing.Size(62, 40);
             layoutControlItem7.Name = "layoutControlItem7";
             layoutControlItem7.OptionsTableLayoutItem.ColumnIndex = 1;
             layoutControlItem7.OptionsTableLayoutItem.RowIndex = 1;
-            layoutControlItem7.Size = new System.Drawing.Size(168, 40);
+            layoutControlItem7.Size = new System.Drawing.Size(98, 68);
+            layoutControlItem7.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem7.Text = "Сообщение";
             layoutControlItem7.TextLocation = DevExpress.Utils.Locations.Top;
             layoutControlItem7.TextSize = new System.Drawing.Size(58, 13);
@@ -229,75 +204,97 @@
             layoutControlItem6.ContentHorzAlignment = DevExpress.Utils.HorzAlignment.Center;
             layoutControlItem6.ContentVertAlignment = DevExpress.Utils.VertAlignment.Center;
             layoutControlItem6.Control = ServerResponseLabel;
-            layoutControlItem6.Location = new System.Drawing.Point(210, 80);
+            layoutControlItem6.Location = new System.Drawing.Point(0, 133);
+            layoutControlItem6.MinSize = new System.Drawing.Size(36, 17);
             layoutControlItem6.Name = "layoutControlItem6";
             layoutControlItem6.OptionsTableLayoutItem.ColumnIndex = 1;
             layoutControlItem6.OptionsTableLayoutItem.ColumnSpan = 4;
             layoutControlItem6.OptionsTableLayoutItem.RowIndex = 2;
-            layoutControlItem6.Size = new System.Drawing.Size(452, 17);
+            layoutControlItem6.Size = new System.Drawing.Size(480, 47);
+            layoutControlItem6.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem6.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem6.TextVisible = false;
             // 
             // layoutControlItem5
             // 
             layoutControlItem5.Control = FindFileButton;
-            layoutControlItem5.Location = new System.Drawing.Point(378, 40);
+            layoutControlItem5.Location = new System.Drawing.Point(98, 65);
+            layoutControlItem5.MinSize = new System.Drawing.Size(71, 26);
             layoutControlItem5.Name = "layoutControlItem5";
             layoutControlItem5.OptionsTableLayoutItem.ColumnIndex = 2;
             layoutControlItem5.OptionsTableLayoutItem.RowIndex = 1;
-            layoutControlItem5.Size = new System.Drawing.Size(100, 40);
+            layoutControlItem5.Size = new System.Drawing.Size(112, 68);
+            layoutControlItem5.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem5.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem5.TextVisible = false;
             // 
             // layoutControlItem2
             // 
             layoutControlItem2.Control = SendMessageButton;
-            layoutControlItem2.Location = new System.Drawing.Point(478, 40);
+            layoutControlItem2.Location = new System.Drawing.Point(210, 65);
+            layoutControlItem2.MinSize = new System.Drawing.Size(67, 26);
             layoutControlItem2.Name = "layoutControlItem2";
             layoutControlItem2.OptionsTableLayoutItem.ColumnIndex = 3;
             layoutControlItem2.OptionsTableLayoutItem.RowIndex = 1;
-            layoutControlItem2.Size = new System.Drawing.Size(100, 40);
+            layoutControlItem2.Size = new System.Drawing.Size(97, 68);
+            layoutControlItem2.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem2.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem2.TextVisible = false;
             // 
             // layoutControlItem3
             // 
             layoutControlItem3.Control = ServerStatusLabel;
-            layoutControlItem3.Location = new System.Drawing.Point(578, 0);
+            layoutControlItem3.Location = new System.Drawing.Point(307, 0);
+            layoutControlItem3.MinSize = new System.Drawing.Size(84, 17);
             layoutControlItem3.Name = "layoutControlItem3";
             layoutControlItem3.OptionsTableLayoutItem.ColumnIndex = 4;
-            layoutControlItem3.Size = new System.Drawing.Size(84, 40);
+            layoutControlItem3.Size = new System.Drawing.Size(173, 65);
+            layoutControlItem3.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem3.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem3.TextVisible = false;
             // 
             // layoutControlItem8
             // 
             layoutControlItem8.Control = ConnectButton;
-            layoutControlItem8.Location = new System.Drawing.Point(478, 0);
+            layoutControlItem8.Location = new System.Drawing.Point(210, 0);
+            layoutControlItem8.MinSize = new System.Drawing.Size(87, 26);
             layoutControlItem8.Name = "layoutControlItem8";
             layoutControlItem8.OptionsTableLayoutItem.ColumnIndex = 3;
-            layoutControlItem8.Size = new System.Drawing.Size(100, 40);
+            layoutControlItem8.Size = new System.Drawing.Size(97, 65);
+            layoutControlItem8.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem8.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem8.TextVisible = false;
             // 
             // layoutControlItem9
             // 
+            layoutControlItem9.ContentVertAlignment = DevExpress.Utils.VertAlignment.Center;
             layoutControlItem9.Control = PortEdit;
-            layoutControlItem9.Location = new System.Drawing.Point(378, 0);
+            layoutControlItem9.Location = new System.Drawing.Point(98, 0);
+            layoutControlItem9.MinSize = new System.Drawing.Size(62, 40);
             layoutControlItem9.Name = "layoutControlItem9";
             layoutControlItem9.OptionsTableLayoutItem.ColumnIndex = 2;
-            layoutControlItem9.Size = new System.Drawing.Size(100, 40);
+            layoutControlItem9.Size = new System.Drawing.Size(112, 65);
+            layoutControlItem9.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem9.Text = "Порт";
             layoutControlItem9.TextLocation = DevExpress.Utils.Locations.Top;
             layoutControlItem9.TextSize = new System.Drawing.Size(58, 13);
+            // 
+            // emptySpaceItem1
+            // 
+            emptySpaceItem1.AllowHotTrack = false;
+            emptySpaceItem1.Location = new System.Drawing.Point(307, 65);
+            emptySpaceItem1.Name = "emptySpaceItem1";
+            emptySpaceItem1.Size = new System.Drawing.Size(173, 68);
+            emptySpaceItem1.TextSize = new System.Drawing.Size(0, 0);
             // 
             // ClientUserControl
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             Controls.Add(layoutControl1);
+            MaximumSize = new System.Drawing.Size(500, 200);
             Name = "ClientUserControl";
-            Size = new System.Drawing.Size(776, 425);
+            Size = new System.Drawing.Size(500, 200);
             ((System.ComponentModel.ISupportInitialize)layoutControl1).EndInit();
             layoutControl1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)PortEdit.Properties).EndInit();
@@ -312,6 +309,7 @@
             ((System.ComponentModel.ISupportInitialize)layoutControlItem3).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem8).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem9).EndInit();
+            ((System.ComponentModel.ISupportInitialize)emptySpaceItem1).EndInit();
             ResumeLayout(false);
         }
 
@@ -337,5 +335,6 @@
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem1;
         private DevExpress.XtraEditors.SpinEdit PortEdit;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem9;
+        private DevExpress.XtraLayout.EmptySpaceItem emptySpaceItem1;
     }
 }
