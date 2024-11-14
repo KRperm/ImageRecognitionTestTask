@@ -1,4 +1,5 @@
 ﻿using DevExpress.Utils.MVVM;
+using System;
 using System.Net;
 
 namespace ImageRecognitionTestTask
@@ -15,6 +16,7 @@ namespace ImageRecognitionTestTask
             };
             var fluent = mvvmContext.OfType<ClientViewModel>();
             fluent.BindCommand(ConnectButton, x => x.ConnectAsync());
+            fluent.BindCancelCommand(DisconnectButton, x => x.ConnectAsync());
             fluent.BindCommand(SendMessageButton, x => x.SendMessageAsync());
             fluent.BindCommand(FindFileButton, x => x.SetFilePathMessage());
             fluent.SetBinding(ServerStatusLabel, e => e.Text, x => x.Status,

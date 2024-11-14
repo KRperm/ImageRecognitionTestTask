@@ -1,4 +1,5 @@
-﻿using DevExpress.XtraEditors;
+﻿using DevExpress.Utils.MVVM;
+using DevExpress.XtraEditors;
 
 namespace ImageRecognitionTestTask
 {
@@ -7,6 +8,7 @@ namespace ImageRecognitionTestTask
         public MainForm()
         {
             InitializeComponent();
+            MVVMContext.RegisterFlyoutMessageBoxService();
         }
     }
 }

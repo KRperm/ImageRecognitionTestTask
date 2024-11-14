@@ -1,4 +1,6 @@
-﻿using DevExpress.Utils.MVVM;
+﻿using DevExpress.Mvvm;
+using DevExpress.Utils.MVVM;
+using System;
 
 namespace ImageRecognitionTestTask
 {
@@ -7,14 +9,23 @@ namespace ImageRecognitionTestTask
         public ServerUserControl()
         {
             InitializeComponent();
+            Messenger.Default.Register<ServerViewModel.ClientMessage>(this, OnMessage);
+
             var mvvmContext = new MVVMContext
             {
                 ContainerControl = this,
                 ViewModelType = typeof(ServerViewModel),
             };
             var fluent = mvvmContext.OfType<ServerViewModel>();
-            fluent.BindCommand(StartServerButton, x => x.StartServerAsync());
-            fluent.SetBinding(PortEdit, e => e.Value, x => x.Port);
+            fluent.BindCommand(RunServerButton, x => x.RunServerAsync());
+            fluent.BindCancelCommand(StopServerButton, x => x.RunServerAsync());
+            fluent.SetBinding(PortEdit, e => e.Value, x => x.ServerPort);
+            fluent.SetBinding(PortEdit, e => e.Enabled, x => x.IsServerRunning, modelState => !modelState);
+        }
+
+        private void OnMessage(ServerViewModel.ClientMessage message)
+        {
+            LogEdit.Text += $"{message}{Environment.NewLine}";
         }
 
         private void OnDisposing()
@@ -24,7 +35,7 @@ namespace ImageRecognitionTestTask
             {
                 return;
             }
-            var viewModel = mvvmContext.GetViewModel<ClientViewModel>();
+            var viewModel = mvvmContext.GetViewModel<ServerViewModel>();
             viewModel.Dispose();
             mvvmContext.Dispose();
         }
