@@ -1,5 +1,6 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Utils.MVVM;
+using ImageRecognitionTestTask.ViewModels;
 using System;
 
 namespace ImageRecognitionTestTask
