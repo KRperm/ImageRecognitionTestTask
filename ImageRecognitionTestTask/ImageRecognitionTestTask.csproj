@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="DevExpress.Win.Design" Version="24.1.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.10" />
+    <PackageReference Include="MVTec.HalconDotNet-Windows" Version="20111.0.0" />
   </ItemGroup>
 
   <ItemGroup>

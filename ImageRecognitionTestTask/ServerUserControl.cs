@@ -1,5 +1,6 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Utils.MVVM;
+using HalconDotNet;
 using System;
 
 namespace ImageRecognitionTestTask

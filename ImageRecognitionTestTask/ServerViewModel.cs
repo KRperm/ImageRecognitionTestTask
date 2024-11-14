@@ -2,14 +2,12 @@
 using DevExpress.Mvvm.POCO;
 using System;
 using System.Collections.Concurrent;
-using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static ImageRecognitionTestTask.ServerViewModel;
 
 namespace ImageRecognitionTestTask
 {
