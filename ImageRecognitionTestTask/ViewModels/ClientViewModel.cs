@@ -7,7 +7,7 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ImageRecognitionTestTask
+namespace ImageRecognitionTestTask.ViewModels
 {
     public class ClientViewModel : IDisposable
     {

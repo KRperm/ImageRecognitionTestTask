@@ -3,10 +3,9 @@ using DevExpress.Mvvm.POCO;
 using ImageRecognitionTestTask.Server;
 using System;
 using System.Net;
-using System.Security.Policy;
 using System.Threading.Tasks;
 
-namespace ImageRecognitionTestTask
+namespace ImageRecognitionTestTask.ViewModels
 {
     public class ServerViewModel : IDisposable
     {
