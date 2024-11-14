@@ -1,6 +1,5 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Utils.MVVM;
-using HalconDotNet;
 using System;
 
 namespace ImageRecognitionTestTask
@@ -10,7 +9,7 @@ namespace ImageRecognitionTestTask
         public ServerUserControl()
         {
             InitializeComponent();
-            Messenger.Default.Register<ServerViewModel.ClientMessage>(this, OnMessage);
+            Messenger.Default.Register<string>(this, OnMessage);
 
             var mvvmContext = new MVVMContext
             {
@@ -21,10 +20,10 @@ namespace ImageRecognitionTestTask
             fluent.BindCommand(RunServerButton, x => x.RunServerAsync());
             fluent.BindCancelCommand(StopServerButton, x => x.RunServerAsync());
             fluent.SetBinding(PortEdit, e => e.Value, x => x.ServerPort);
-            fluent.SetBinding(PortEdit, e => e.Enabled, x => x.IsServerRunning, modelState => !modelState);
+            fluent.SetBinding(PortEdit, e => e.Enabled, x => x.IsServerStopped);
         }
 
-        private void OnMessage(ServerViewModel.ClientMessage message)
+        private void OnMessage(string message)
         {
             LogEdit.Text += $"{message}{Environment.NewLine}";
         }

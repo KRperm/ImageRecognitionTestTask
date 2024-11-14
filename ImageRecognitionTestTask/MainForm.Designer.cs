@@ -56,7 +56,7 @@
             // windowsuiView1
             // 
             windowsuiView1.AllowCaptionDragMove = DevExpress.Utils.DefaultBoolean.False;
-            windowsuiView1.Caption = "Выберите режим приложения";
+            windowsuiView1.Caption = "Режимы приложения";
             windowsuiView1.ContentContainers.AddRange(new DevExpress.XtraBars.Docking2010.Views.WindowsUI.IContentContainer[] { tileContainer1 });
             windowsuiView1.Documents.AddRange(new DevExpress.XtraBars.Docking2010.Views.BaseDocument[] { document1, document2 });
             windowsuiView1.SearchPanelProperties.Enabled = false;

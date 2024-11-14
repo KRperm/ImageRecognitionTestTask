@@ -1,33 +1,29 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Mvvm.POCO;
+using ImageRecognitionTestTask.Server;
 using System;
-using System.Collections.Concurrent;
-using System.IO;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace ImageRecognitionTestTask
 {
     public class ServerViewModel : IDisposable
     {
-        public virtual bool IsServerRunning { get; set; }
+        public virtual bool IsServerStopped { get; set; }
         public virtual int ServerPort { get; set; }
 
-        protected Encoding Encoding { get; }
         protected IMessageBoxService MessageBoxService { get; }
+        private readonly AppServer _server = new();
 
-        private TcpListener _listener;
-        private readonly ConcurrentDictionary<Guid, Session> _sessions;
 
         public ServerViewModel()
         {
-            _sessions = [];
-            Encoding = Encoding.UTF8;
             MessageBoxService = this.GetService<IMessageBoxService>();
-            IsServerRunning = false;
+            IsServerStopped = true;
+            _server.StatusChanged += OnServerStatusChanged;
+            _server.SessionStatusChanged += OnServerSessionStatusChanged;
+            _server.SessionMessageRecieved += OnServerSessionMessageRecieved;
 
             // defaults
             ServerPort = 2100;
@@ -35,128 +31,55 @@ namespace ImageRecognitionTestTask
 
         public async Task RunServerAsync()
         {
-            if (_listener is not null)
-            {
-                return;
-            }
-
             var asyncCommand = this.GetAsyncCommand(x => x.RunServerAsync());
-            var token = asyncCommand.CancellationTokenSource.Token;
-
-            try
-            {
-                _listener = new TcpListener(IPAddress.Any, ServerPort);
-                _listener.Start();
-                IsServerRunning = true;
-                while (!token.IsCancellationRequested)
-                {
-                    var client = await _listener.AcceptTcpClientAsync(token);
-                    var session = new Session()
-                    {
-                        Id = Guid.NewGuid(),
-                        Client = client,
-                        TokenSource = new CancellationTokenSource(),
-                    };
-                    _sessions[session.Id] = session;
-
-                    var messageObject = new ClientMessage() { Name = session.Id.ToString()[..5], Message = "Клиент подключён" };
-                    Messenger.Default.Send(messageObject);
-
-                    _ = DoSessionRoutineAsync(session);
-                }
-            }
-            catch (OperationCanceledException) { }
-            catch (Exception ex)
-            {
-                MessageBoxService.ShowMessage(ex.Message, "Ошибка");
-            }
-            finally
-            {
-                IsServerRunning = false;
-                _listener.Stop();
-                _listener.Dispose();
-                _listener = null;
-            }
+            var endPoint = new IPEndPoint(IPAddress.Any, ServerPort);
+            await _server.RunServerLifecycleAsync(endPoint, asyncCommand.CancellationTokenSource.Token);
         }
 
-        private async Task DoSessionRoutineAsync(Session session)
+        private void OnServerStatusChanged(object sender, ServerStatusChangedEventArgs e)
         {
-            try
+            if (e.Exception.IsNotIntended())
             {
-                while (!session.Token.IsCancellationRequested && session.Client.Connected)
-                {
-                    var stream = session.Client.GetStream();
-
-                    var inputBuffer = new byte[1024];
-                    var inputSize = await stream.ReadAsync(inputBuffer, session.Token);
-                    var clientMessage = Encoding.GetString(inputBuffer, 0, inputSize);
-                    var messageObject = new ClientMessage() { Name = session.Id.ToString()[..5], Message = clientMessage };
-                    Messenger.Default.Send(messageObject);
-
-                    var response = React(clientMessage);
-                    var outputBuffer = Encoding.GetBytes(response);
-                    await stream.WriteAsync(outputBuffer, session.Token);
-                }
+                MessageBoxService.ShowMessage(e.Exception.Message, "Ошибка работы сервера");
             }
-            catch(Exception ex)
-            {
-                var message = $"Клиент отключён - {ex.Message}";
-                var messageObject = new ClientMessage() { Name = session.Id.ToString()[..5], Message = message };
-                Messenger.Default.Send(messageObject);
-            }
-            finally
-            {
-                _sessions.TryRemove(session.Id, out _);
-                session.Dispose();
-            }
+            IsServerStopped = !e.IsRunning;
+            WriteMessage(e.IsRunning ? "Сервер запущен" : "Сервер остановлен");
         }
 
-        private string React(string clientMessage)
+        private void OnServerSessionStatusChanged(object sender, SessionStatusChangedEventArgs e)
         {
-            if (File.Exists(clientMessage))
+            var message = "Клиент подключился";
+            if (!e.IsConnected)
             {
-                using var stream = File.OpenRead(clientMessage);
+                message = e.Exception.IsNotIntended() ? $"Клиент отключился ({e.Exception.Message})" : "Клиент отключился";
             }
+            WriteMessage(e.SessionId, e.ClientName, message);
+        }
 
-            return $"SERVER ECHO: {clientMessage}";
+        private void OnServerSessionMessageRecieved(object sender, SessionMessageRecievedEventArgs e)
+        {
+            WriteMessage(e.SessionId, e.ClientName, $"Сообщение '{e.Message}'");
+        }
+
+        private void WriteMessage(string message)
+        {
+            var timeString = DateTime.Now.ToLongTimeString();
+            Messenger.Default.Send($"{timeString}> {message}");
+        }
+
+        private void WriteMessage(Guid sessionId, string clientName, string message)
+        {
+            var timeString = DateTime.Now.ToLongTimeString();
+            var idString = $"[id сессии {sessionId.ToString()[..8]}...]";
+            Messenger.Default.Send($"{timeString} {clientName} {idString}> {message}");
         }
 
         public void Dispose()
         {
-            _listener.Stop();
-            _listener.Dispose();
-            foreach (var session in _sessions.Values)
-            {
-                session.Dispose();
-            }
-            _sessions.Clear();
-        }
-
-        private class Session : IDisposable
-        {
-            public Guid Id { get; set; }
-            public TcpClient Client { get; set; }
-            public CancellationTokenSource TokenSource { get; set; }
-            public CancellationToken Token => TokenSource?.Token ?? default;
-
-            public void Dispose()
-            {
-                Client?.Close();
-                Client?.Dispose();
-                TokenSource?.Cancel();
-                TokenSource?.Dispose();
-            }
-        }
-
-        public class ClientMessage
-        {
-            public string Name { get; set; }
-            public string Message { get; set; }
-
-            public override string ToString()
-            {
-                return $"{Name}: {Message}";
-            }
+            _server.StatusChanged -= OnServerStatusChanged;
+            _server.SessionStatusChanged -= OnServerSessionStatusChanged;
+            _server.SessionMessageRecieved -= OnServerSessionMessageRecieved;
+            _server.Dispose();
         }
     }
 }

@@ -1,24 +1,25 @@
 ﻿using DevExpress.Mvvm;
 using DevExpress.Mvvm.DataAnnotations;
 using DevExpress.Mvvm.POCO;
+using ImageRecognitionTestTask.Client;
 using System;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace ImageRecognitionTestTask
 {
     public class ClientViewModel : IDisposable
     {
-        public enum ConnectionStatus { Disconnected, Connecting, Connected };
+        public enum ConnectionStatus { Disconnected, Connected, AwaitingConnection };
 
         [BindableProperty(OnPropertyChangedMethodName = nameof(NotifyStatusChanged))]
         public virtual ConnectionStatus Status { get; set; }
+        [BindableProperty(OnPropertyChangedMethodName = nameof(NotifyMessageChanged))]
         public virtual string Message { get; set; }
+
+        [BindableProperty(OnPropertyChangedMethodName = nameof(NotifyClientNameChanged))]
+        public virtual string ClientName { get; set; }
 
         [BindableProperty(OnPropertyChangedMethodName = nameof(NotifyServerAddressChanged))]
         public virtual IPAddress ServerAddress { get; set; }
@@ -26,58 +27,31 @@ namespace ImageRecognitionTestTask
         public virtual string ServerResponse { get; set; }
 
         protected IMessageBoxService MessageBoxService { get; }
-        protected Encoding Encoding { get; set; }
 
-        private TcpClient _client;
+        private readonly AppClient _client = new();
 
         public ClientViewModel()
         {
             MessageBoxService = this.GetService<IMessageBoxService>();
-            Encoding = Encoding.UTF8;
+            _client.StatusChanged += OnStatusChanged;
+            _client.MessageRecieved += OnClientMessageRecieved;
 
             // defaults
+            ClientName = "По умолчанию";
             ServerAddress = IPAddress.Loopback;
             ServerPort = 2100;
         }
 
         public async Task ConnectAsync()
         {
-            if (_client is not null)
-            {
-                _client.Close();
-                _client.Dispose();
-                _client = null;
-            }
             var asyncCommand = this.GetAsyncCommand(x => x.ConnectAsync());
-
-            try
-            {
-                _client = new TcpClient();
-                Status = ConnectionStatus.Connecting;
-                var endPoint = new IPEndPoint(ServerAddress, ServerPort);
-                await _client.ConnectAsync(endPoint, asyncCommand.CancellationTokenSource.Token);
-                if (asyncCommand.IsCancellationRequested)
-                {
-                    Status = ConnectionStatus.Disconnected;
-                    return;
-                }
-                
-                Status = _client.Connected ? ConnectionStatus.Connected : ConnectionStatus.Disconnected;
-            }
-            catch (OperationCanceledException) 
-            {
-                Status = ConnectionStatus.Disconnected;
-            }
-            catch (Exception ex)
-            {
-                Status = ConnectionStatus.Disconnected;
-                MessageBoxService.ShowMessage(ex.Message, "Ошибка");
-            }
+            var endPoint = new IPEndPoint(ServerAddress, ServerPort);
+            await _client.RunClientLifecycleAsync(endPoint, ClientName, asyncCommand.CancellationTokenSource.Token);
         }
 
         public bool CanConnectAsync()
         {
-            return Status != ConnectionStatus.Connected && ServerAddress != null;
+            return ServerAddress != null && !string.IsNullOrEmpty(ClientName);
         }
 
         public void SetFilePathMessage()
@@ -101,34 +75,30 @@ namespace ImageRecognitionTestTask
 
         public async Task SendMessageAsync()
         {
-            if (_client is null || !_client.Connected)
-            {
-                return;
-            }
             var asyncCommand = this.GetAsyncCommand(x => x.SendMessageAsync());
+
             try
             {
-                var stream = _client.GetStream();
-                var outputBuffer = Encoding.GetBytes(Message);
-                await stream.WriteAsync(outputBuffer, asyncCommand.CancellationTokenSource.Token);
-
-                var inputBuffer = new byte[1024];
-                var size = await stream.ReadAsync(inputBuffer, asyncCommand.CancellationTokenSource.Token);
-
-                ServerResponse = Encoding.GetString(inputBuffer, 0, size);
+                await _client.SendMessageAsync(Message, asyncCommand.CancellationTokenSource.Token);
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                MessageBoxService.ShowMessage(ex.Message, "Ошибка");
+                MessageBoxService.ShowMessage(ex.Message, "Ошибка отправки сообщения");
             }
         }
 
         public bool CanSendMessageAsync()
         {
-            return Status == ConnectionStatus.Connected;
+            return Status == ConnectionStatus.Connected && !string.IsNullOrEmpty(Message);
         }
 
         protected void NotifyServerAddressChanged()
+        {
+            this.RaiseCanExecuteChanged(x => x.ConnectAsync());
+        }
+
+        protected void NotifyClientNameChanged()
         {
             this.RaiseCanExecuteChanged(x => x.ConnectAsync());
         }
@@ -140,9 +110,35 @@ namespace ImageRecognitionTestTask
             this.RaiseCanExecuteChanged(x => x.SendMessageAsync());
         }
 
+        protected void NotifyMessageChanged()
+        {
+            this.RaiseCanExecuteChanged(x => x.SendMessageAsync());
+        }
+
+        private void OnStatusChanged(object sender, ClientStatusChangedEventArgs e)
+        {
+            if (e.Exception.IsNotIntended())
+            {
+                MessageBoxService.ShowMessage(e.Exception.Message, "Ошибка соединения");
+            }
+            Status = e.NewStatus switch
+            {
+                AppClient.Status.Disconnected => ConnectionStatus.Disconnected,
+                AppClient.Status.Connected => ConnectionStatus.Connected,
+                AppClient.Status.AwaitingConnection => ConnectionStatus.AwaitingConnection,
+                _ => throw new NotImplementedException(),
+            };
+        }
+
+        private void OnClientMessageRecieved(object sender, ServerMessageRecievedEventArgs e)
+        {
+            ServerResponse = e.Message;
+        }
+
         public void Dispose()
         {
-            _client.Close();
+            _client.StatusChanged -= OnStatusChanged;
+            _client.MessageRecieved -= OnClientMessageRecieved;
             _client.Dispose();
         }
     }

@@ -1,5 +1,4 @@
 ﻿using DevExpress.Utils.MVVM;
-using System;
 using System.Net;
 
 namespace ImageRecognitionTestTask
@@ -18,7 +17,9 @@ namespace ImageRecognitionTestTask
             fluent.BindCommand(ConnectButton, x => x.ConnectAsync());
             fluent.BindCancelCommand(DisconnectButton, x => x.ConnectAsync());
             fluent.BindCommand(SendMessageButton, x => x.SendMessageAsync());
+            fluent.BindCancelCommand(CancelSendMessageButton, x => x.SendMessageAsync());
             fluent.BindCommand(FindFileButton, x => x.SetFilePathMessage());
+
             fluent.SetBinding(ServerStatusLabel, e => e.Text, x => x.Status,
                 modelState =>
                 {
@@ -26,7 +27,7 @@ namespace ImageRecognitionTestTask
                     {
                         ClientViewModel.ConnectionStatus.Disconnected => "Отключено",
                         ClientViewModel.ConnectionStatus.Connected => "ОК",
-                        ClientViewModel.ConnectionStatus.Connecting => "Соединяю",
+                        ClientViewModel.ConnectionStatus.AwaitingConnection => "Соединяю",
                         _ => "Неизвестный статус",
                     };
                 });
@@ -39,6 +40,8 @@ namespace ImageRecognitionTestTask
             fluent.SetBinding(IpEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Disconnected);
             fluent.SetBinding(PortEdit, e => e.Value, x => x.ServerPort);
             fluent.SetBinding(PortEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Disconnected);
+            fluent.SetBinding(NameEdit, e => e.Text, x => x.ClientName);
+            fluent.SetBinding(NameEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Disconnected);
         }
 
         private void OnDisposing()
