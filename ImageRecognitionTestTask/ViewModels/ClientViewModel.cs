@@ -4,6 +4,7 @@ using DevExpress.Mvvm.POCO;
 using ImageRecognitionTestTask.Client;
 using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -75,11 +76,13 @@ namespace ImageRecognitionTestTask.ViewModels
 
         public async Task SendMessageAsync()
         {
-            var asyncCommand = this.GetAsyncCommand(x => x.SendMessageAsync());
+            var connectAsyncCommand = this.GetAsyncCommand(x => x.ConnectAsync());
+            var sendAsyncCommand = this.GetAsyncCommand(x => x.SendMessageAsync());
+            using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(connectAsyncCommand.CancellationTokenSource.Token, sendAsyncCommand.CancellationTokenSource.Token);
 
             try
             {
-                await _client.SendMessageAsync(Message, asyncCommand.CancellationTokenSource.Token);
+                await _client.SendMessageAsync(Message, linkedTokenSource.Token);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)

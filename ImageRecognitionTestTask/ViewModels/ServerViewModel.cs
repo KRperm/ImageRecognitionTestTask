@@ -1,7 +1,9 @@
 ﻿using DevExpress.Mvvm;
+using DevExpress.Mvvm.DataAnnotations;
 using DevExpress.Mvvm.POCO;
 using ImageRecognitionTestTask.Server;
 using System;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -11,6 +13,7 @@ namespace ImageRecognitionTestTask.ViewModels
     {
         public virtual bool IsServerStopped { get; set; }
         public virtual int ServerPort { get; set; }
+        public virtual Guid SelectedImageId { get; set; }
 
         protected IMessageBoxService MessageBoxService { get; }
         private readonly AppServer _server = new();
@@ -57,7 +60,7 @@ namespace ImageRecognitionTestTask.ViewModels
 
         private void OnServerSessionMessageRecieved(object sender, SessionMessageRecievedEventArgs e)
         {
-            WriteMessage(e.SessionId, e.ClientName, $"Сообщение '{e.Message}'");
+            WriteMessage(e.SessionId, e.ClientName, $"Сообщение '{e.Message}'. Ответ '{e.Response}'");
         }
 
         private void WriteMessage(string message)

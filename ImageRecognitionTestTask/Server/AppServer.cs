@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
 using System.IO;
-using DevExpress.Pdf.Native.BouncyCastle.Utilities.IO;
+using HalconDotNet;
 
 namespace ImageRecognitionTestTask.Server
 {
@@ -85,15 +85,16 @@ namespace ImageRecognitionTestTask.Server
                         break;
                     }
                     var sessionMessage = Encoding.GetString(readBuffer, 0, readSize);
-                    var messageRecievedArgs = new SessionMessageRecievedEventArgs(session.Id, session.ClientName, sessionMessage);
+                    var responseMessage = HandleSessionMessage(sessionMessage);
+
+                    var messageRecievedArgs = new SessionMessageRecievedEventArgs(session.Id, session.ClientName, sessionMessage, responseMessage);
                     SessionMessageRecieved?.Invoke(this, messageRecievedArgs);
 
-                    var responseMessage = HandleSessionMessage(sessionMessage);
                     var writeBuffer = Encoding.GetBytes(responseMessage);
                     await stream.WriteAsync(writeBuffer, token);
                 }
             }
-            catch(IOException ioEx)
+            catch (IOException ioEx)
             {
                 exception = ioEx.InnerException;
             }
@@ -112,12 +113,43 @@ namespace ImageRecognitionTestTask.Server
 
         private string HandleSessionMessage(string sessionMessage)
         {
-            if (File.Exists(sessionMessage))
+            if (TryDetectObjects(sessionMessage, out var region))
             {
-                using var stream = File.OpenRead(sessionMessage);
+                using var appContext = new ApplicationContext();
+                
+                var objectCount = region.CountObj();
+                var record = new ImageRecord
+                {
+                    ObjectCount = region.CountObj(),
+                    Path = sessionMessage,
+                };
+                appContext.Images.Add(record);
+                appContext.SaveChanges();
+
+                return objectCount == 50 ? "OK" : "NG";
             }
 
             return $"SERVER ECHO: {sessionMessage}";
+        }
+
+        private bool TryDetectObjects(string path, out HRegion region)
+        {
+            region = null;
+            HImage image;
+            try
+            {
+                image = new HImage(path);
+            }
+            catch
+            {
+                return false;
+            }
+            region = image.GrayErosionShape(20d, 20d, "octagon")
+                    .Threshold(90d, 255d)
+                    .ErosionCircle(3d)
+                    .DilationCircle(5d)
+                    .Connection();
+            return true;
         }
 
         public void Dispose()
