@@ -13,7 +13,7 @@ namespace ImageRecognitionTestTask.Server
     {
         public event EventHandler<ServerStatusChangedEventArgs> StatusChanged;
         public event EventHandler<SessionStatusChangedEventArgs> SessionStatusChanged;
-        public event EventHandler<SessionMessageRecievedEventArgs> SessionMessageRecieved;
+        public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
 
         public Encoding Encoding { get; set; } = Encoding.UTF8;
 
@@ -35,23 +35,16 @@ namespace ImageRecognitionTestTask.Server
                 StatusChanged?.Invoke(this, connectedArgs);
                 while (!token.IsCancellationRequested)
                 {
-                    var client = await _listener.AcceptTcpClientAsync(token);
+                    var client = await _listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
 
-                    // Получаем имя клиента
-                    var clientStream = client.GetStream();
-                    var readNameBuffer = new byte[client.ReceiveBufferSize];
-                    var readSize = await clientStream.ReadAsync(readNameBuffer, token);
-                    var clientName = Encoding.GetString(readNameBuffer, 0, readSize);
-
-                    var session = new Session 
+                    var session = new Session(client, Encoding);
+                    session.StatusChanged += OnSessionStatusChanged;
+                    session.ClientMessageRecieved += OnSessionClientMessageRecieved;
+                    _ = session.RunSessionLifecycleAsync(token).ContinueWith(_ =>
                     {
-                        Id = Guid.NewGuid(),
-                        ClientName = clientName,
-                        Client = client,
-                    };
-                    var sessionConnectedArgs = new SessionStatusChangedEventArgs(session.Id, session.ClientName, true);
-                    SessionStatusChanged?.Invoke(this, sessionConnectedArgs);
-                    _ = RunSessionLifecycleAsync(session, token);
+                        session.StatusChanged -= OnSessionStatusChanged;
+                        session.ClientMessageRecieved -= OnSessionClientMessageRecieved;
+                    }, CancellationToken.None);
                 }
             }
             catch (Exception ex)
@@ -61,95 +54,22 @@ namespace ImageRecognitionTestTask.Server
             finally
             {
                 // disconnect
-                _listener.Stop();
-                _listener.Dispose();
+                _listener?.Stop();
+                _listener?.Dispose();
                 _listener = null;
                 var disconnectedArgs = new ServerStatusChangedEventArgs(false, exception);
                 StatusChanged?.Invoke(this, disconnectedArgs);
             }
         }
 
-        private async Task RunSessionLifecycleAsync(Session session, CancellationToken token)
+        private void OnSessionClientMessageRecieved(object sender, ClientMessageRecievedEventArgs e)
         {
-            Exception exception = null;
-            try
-            {
-                while (!token.IsCancellationRequested)
-                {
-                    var stream = session.Client.GetStream();
-
-                    var readBuffer = new byte[session.Client.ReceiveBufferSize];
-                    var readSize = await stream.ReadAsync(readBuffer, token);
-                    if (readSize == 0)
-                    {
-                        break;
-                    }
-                    var sessionMessage = Encoding.GetString(readBuffer, 0, readSize);
-                    var responseMessage = HandleSessionMessage(sessionMessage);
-
-                    var messageRecievedArgs = new SessionMessageRecievedEventArgs(session.Id, session.ClientName, sessionMessage, responseMessage);
-                    SessionMessageRecieved?.Invoke(this, messageRecievedArgs);
-
-                    var writeBuffer = Encoding.GetBytes(responseMessage);
-                    await stream.WriteAsync(writeBuffer, token);
-                }
-            }
-            catch (IOException ioEx)
-            {
-                exception = ioEx.InnerException;
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-            finally
-            {
-                // close session
-                session.Client.Dispose();
-                var disconnectedArgs = new SessionStatusChangedEventArgs(session.Id, session.ClientName, false, exception);
-                SessionStatusChanged?.Invoke(this, disconnectedArgs);
-            }
+            ClientMessageRecieved?.Invoke(sender, e);
         }
 
-        private string HandleSessionMessage(string sessionMessage)
+        private void OnSessionStatusChanged(object sender, SessionStatusChangedEventArgs e)
         {
-            if (TryDetectObjects(sessionMessage, out var region))
-            {
-                using var appContext = new ApplicationContext();
-                
-                var objectCount = region.CountObj();
-                var record = new ImageRecord
-                {
-                    ObjectCount = region.CountObj(),
-                    Path = sessionMessage,
-                };
-                appContext.Images.Add(record);
-                appContext.SaveChanges();
-
-                return objectCount == 50 ? "OK" : "NG";
-            }
-
-            return $"SERVER ECHO: {sessionMessage}";
-        }
-
-        private bool TryDetectObjects(string path, out HRegion region)
-        {
-            region = null;
-            HImage image;
-            try
-            {
-                image = new HImage(path);
-            }
-            catch
-            {
-                return false;
-            }
-            region = image.GrayErosionShape(20d, 20d, "octagon")
-                    .Threshold(90d, 255d)
-                    .ErosionCircle(3d)
-                    .DilationCircle(5d)
-                    .Connection();
-            return true;
+            SessionStatusChanged?.Invoke(sender, e);
         }
 
         public void Dispose()

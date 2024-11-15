@@ -47,7 +47,7 @@ namespace ImageRecognitionTestTask.ViewModels
         {
             var asyncCommand = this.GetAsyncCommand(x => x.ConnectAsync());
             var endPoint = new IPEndPoint(ServerAddress, ServerPort);
-            await _client.RunClientLifecycleAsync(endPoint, ClientName, asyncCommand.CancellationTokenSource.Token);
+            await _client.RunClientLifecycleAsync(endPoint, ClientName, asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
         }
 
         public bool CanConnectAsync()
@@ -82,7 +82,7 @@ namespace ImageRecognitionTestTask.ViewModels
 
             try
             {
-                await _client.SendMessageAsync(Message, linkedTokenSource.Token);
+                await _client.SendMessageAsync(Message, linkedTokenSource.Token).ConfigureAwait(false);
             }
             catch (OperationCanceledException) { }
             catch (Exception ex)

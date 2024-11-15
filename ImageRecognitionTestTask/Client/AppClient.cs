@@ -31,8 +31,8 @@ namespace ImageRecognitionTestTask.Client
                 _client = new TcpClient();
                 var awaitingArgs = new ClientStatusChangedEventArgs(Status.AwaitingConnection);
                 StatusChanged?.Invoke(this, awaitingArgs);
-                await _client.ConnectAsync(endPoint, token);
-                await SendMessageAsync(clientName, token);
+                await _client.ConnectAsync(endPoint, token).ConfigureAwait(false);
+                await SendMessageAsync(clientName, token).ConfigureAwait(false);
                 var connectedArgs = new ClientStatusChangedEventArgs(Status.Connected);
                 StatusChanged?.Invoke(this, connectedArgs);
 
@@ -41,7 +41,7 @@ namespace ImageRecognitionTestTask.Client
                 {
                     var stream = _client.GetStream();
                     var readBuffer = new byte[_client.ReceiveBufferSize];
-                    var readSize = await stream.ReadAsync(readBuffer, token);
+                    var readSize = await stream.ReadAsync(readBuffer, token).ConfigureAwait(false);
                     if (readSize == 0)
                     {
                         break;
@@ -77,7 +77,7 @@ namespace ImageRecognitionTestTask.Client
             }
             var stream = _client.GetStream();
             var writeBuffer = Encoding.GetBytes(message);
-            await stream.WriteAsync(writeBuffer, token);
+            await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
         }
 
         public void Dispose()
