@@ -28,8 +28,8 @@ namespace ImageRecognitionTestTask.Lifetime
 
         public async Task RunLifetime(CancellationToken token)
         {
-            ObjectDisposedException.ThrowIf(_currentStatus == Status.Finished, this);
-            if (_currentStatus == Status.Running)
+            ObjectDisposedException.ThrowIf(CurrentStatus == Status.Finished, this);
+            if (CurrentStatus == Status.Running)
             {
                 return;
             }
@@ -65,7 +65,7 @@ namespace ImageRecognitionTestTask.Lifetime
 
         public void Dispose()
         {
-            if (_currentStatus == Status.Finished)
+            if (CurrentStatus == Status.Finished)
             {
                 return;
             }
