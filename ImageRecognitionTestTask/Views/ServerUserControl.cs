@@ -59,8 +59,6 @@ namespace ImageRecognitionTestTask
             {
                 return;
             }
-            var viewModel = mvvmContext.GetViewModel<ServerViewModel>();
-            viewModel.Dispose();
             mvvmContext.Dispose();
         }
     }

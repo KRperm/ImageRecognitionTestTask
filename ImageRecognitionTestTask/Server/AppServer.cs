@@ -4,79 +4,61 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
-using System.IO;
-using HalconDotNet;
+using ImageRecognitionTestTask.Lifetime;
 
 namespace ImageRecognitionTestTask.Server
 {
-    public partial class AppServer : IDisposable
+    public partial class AppServer : LifetimeObjectBase
     {
-        public event EventHandler<ServerStatusChangedEventArgs> StatusChanged;
-        public event EventHandler<SessionStatusChangedEventArgs> SessionStatusChanged;
+        public event EventHandler<LifetimeObjectStatusChangedEventArgs> SessionStatusChanged;
         public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
 
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
-
         private TcpListener _listener;
+        private readonly IPEndPoint _endPoint;
+        private readonly Encoding _encoding;
 
-        public async Task RunServerLifecycleAsync(IPEndPoint endPoint, CancellationToken token)
+        public AppServer(IPEndPoint endPoint, Encoding encoding)
         {
-            if (_listener is not null)
-            {
-                return;
-            }
-
-            Exception exception = null;
-            try
-            {
-                _listener = new TcpListener(endPoint);
-                _listener.Start();
-                var connectedArgs = new ServerStatusChangedEventArgs(true);
-                StatusChanged?.Invoke(this, connectedArgs);
-                while (!token.IsCancellationRequested)
-                {
-                    var client = await _listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
-
-                    var session = new Session(client, Encoding);
-                    session.StatusChanged += OnSessionStatusChanged;
-                    session.ClientMessageRecieved += OnSessionClientMessageRecieved;
-                    _ = session.RunSessionLifecycleAsync(token).ContinueWith(_ =>
-                    {
-                        session.StatusChanged -= OnSessionStatusChanged;
-                        session.ClientMessageRecieved -= OnSessionClientMessageRecieved;
-                    }, CancellationToken.None);
-                }
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-            finally
-            {
-                // disconnect
-                _listener?.Stop();
-                _listener?.Dispose();
-                _listener = null;
-                var disconnectedArgs = new ServerStatusChangedEventArgs(false, exception);
-                StatusChanged?.Invoke(this, disconnectedArgs);
-            }
+            _encoding = encoding;
+            _endPoint = endPoint;
         }
 
-        private void OnSessionClientMessageRecieved(object sender, ClientMessageRecievedEventArgs e)
+        protected override Task Start(CancellationToken token)
+        {
+            _listener = new TcpListener(_endPoint);
+            _listener.Start();
+            return Task.CompletedTask;
+        }
+
+        protected override async Task<bool> Run(CancellationToken token)
+        {
+            var client = await _listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
+
+            var session = new Session(client, _encoding);
+            session.StatusChanged += OnSessionStatusChanged;
+            session.ClientMessageRecieved += OnClientMessageRecieved;
+            _ = session.RunLifetime(token).ContinueWith(_ =>
+            {
+                session.StatusChanged -= OnSessionStatusChanged;
+                session.ClientMessageRecieved -= OnClientMessageRecieved;
+            }, CancellationToken.None);
+            return true;
+        }
+
+        protected override void End()
+        {
+            _listener?.Stop();
+            _listener?.Dispose();
+        }
+
+        private void OnClientMessageRecieved(object sender, ClientMessageRecievedEventArgs e)
         {
             ClientMessageRecieved?.Invoke(sender, e);
         }
 
-        private void OnSessionStatusChanged(object sender, SessionStatusChangedEventArgs e)
+        private void OnSessionStatusChanged(object sender, LifetimeObjectStatusChangedEventArgs e)
         {
             SessionStatusChanged?.Invoke(sender, e);
-        }
-
-        public void Dispose()
-        {
-            _listener?.Stop();
-            _listener?.Dispose();
-            _listener = null;
         }
     }
 }

@@ -2,16 +2,20 @@
 using DevExpress.Mvvm.DataAnnotations;
 using DevExpress.Mvvm.POCO;
 using DevExpress.Utils.MVVM.Services;
+using ImageRecognitionTestTask.Lifetime;
 using ImageRecognitionTestTask.Server;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.ServiceModel;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ImageRecognitionTestTask.ViewModels
 {
-    public class ServerViewModel : IDisposable
+    public class ServerViewModel
     {
         public virtual bool IsServerStopped { get; set; }
         public virtual int ServerPort { get; set; }
@@ -19,7 +23,6 @@ namespace ImageRecognitionTestTask.ViewModels
 
         protected IMessageBoxService MessageBoxService { get; }
         protected IDispatcherService DispatcherService { get; }
-        private readonly AppServer _server = new();
 
 
         public ServerViewModel()
@@ -27,10 +30,6 @@ namespace ImageRecognitionTestTask.ViewModels
             MessageBoxService = this.GetService<IMessageBoxService>();
             DispatcherService = this.GetService<IDispatcherService>();
             IsServerStopped = true;
-            _server.StatusChanged += OnServerStatusChanged;
-            _server.SessionStatusChanged += OnServerSessionStatusChanged;
-            _server.ClientMessageRecieved += OnServerSessionMessageRecieved;
-
             // defaults
             ServerPort = 2100;
         }
@@ -39,30 +38,47 @@ namespace ImageRecognitionTestTask.ViewModels
         {
             var asyncCommand = this.GetAsyncCommand(x => x.RunServerAsync());
             var endPoint = new IPEndPoint(IPAddress.Any, ServerPort);
-            await _server.RunServerLifecycleAsync(endPoint, asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
+            using var server = new AppServer(endPoint, Encoding.UTF8);
+            server.StatusChanged += OnServerStatusChanged;
+            server.SessionStatusChanged += OnServerSessionStatusChanged;
+            server.ClientMessageRecieved += OnServerSessionMessageRecieved;
+            await server.RunLifetime(asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
+            server.StatusChanged -= OnServerStatusChanged;
+            server.SessionStatusChanged -= OnServerSessionStatusChanged;
+            server.ClientMessageRecieved -= OnServerSessionMessageRecieved;
         }
 
-        private void OnServerStatusChanged(object sender, ServerStatusChangedEventArgs e)
+        private void OnServerStatusChanged(object sender, LifetimeObjectStatusChangedEventArgs e)
         {
+            if (e.NewStatus == LifetimeObjectBase.Status.StartingUp)
+            {
+                return;
+            }
             if (e.Exception.IsNotIntended())
             {
-                MessageBoxService.ShowMessage(e.Exception.Message, "Ошибка работы сервера");
+                MessageBoxService.ShowMessage(e.Exception.TryGetIOExceptionMessage(), "Ошибка работы сервера");
             }
-            IsServerStopped = !e.IsRunning;
-            WriteMessage(e.IsRunning ? "Сервер запущен" : "Сервер остановлен");
+            DispatcherService.BeginInvoke(() => IsServerStopped = e.NewStatus == LifetimeObjectBase.Status.Finished);
+            var statusMessage = e.NewStatus == LifetimeObjectBase.Status.Finished ? "Сервер остановлен" : "Сервер запущен";
+            WriteMessage(statusMessage);
+
         }
 
-        private void OnServerSessionStatusChanged(object sender, SessionStatusChangedEventArgs e)
+        private void OnServerSessionStatusChanged(object sender, LifetimeObjectStatusChangedEventArgs e)
         {
             if (sender is not Session session)
             {
                 throw new ArgumentException();
             }
+            if (e.NewStatus == LifetimeObjectBase.Status.StartingUp)
+            {
+                return;
+            }
 
             var message = "Клиент подключился";
-            if (!e.IsConnected)
+            if (e.NewStatus == LifetimeObjectBase.Status.Finished)
             {
-                message = e.Exception.IsNotIntended() ? $"Клиент отключился ({e.Exception.Message})" : "Клиент отключился";
+                message = e.Exception.IsNotIntended() ? $"Клиент отключился ({e.Exception.TryGetIOExceptionMessage()})" : "Клиент отключился";
             }
             WriteMessage(session.Id, session.ClientName, message);
         }
@@ -87,14 +103,6 @@ namespace ImageRecognitionTestTask.ViewModels
             var timeString = DateTime.Now.ToLongTimeString();
             var idString = $"[id сессии {sessionId.ToString()[..8]}...]";
             DispatcherService.BeginInvoke(() => Messenger.Default.Send($"{timeString} {clientName} {idString}> {message}"));
-        }
-
-        public void Dispose()
-        {
-            _server.StatusChanged -= OnServerStatusChanged;
-            _server.SessionStatusChanged -= OnServerSessionStatusChanged;
-            _server.ClientMessageRecieved -= OnServerSessionMessageRecieved;
-            _server.Dispose();
         }
     }
 }

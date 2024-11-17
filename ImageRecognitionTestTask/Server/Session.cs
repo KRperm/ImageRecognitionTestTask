@@ -1,80 +1,62 @@
 ﻿using System;
-using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using HalconDotNet;
-using DevExpress.Xpo;
+using ImageRecognitionTestTask.Lifetime;
 
 namespace ImageRecognitionTestTask.Server
 {
-    public class Session
+    public class Session : LifetimeObjectBase
     {
-        public event EventHandler<SessionStatusChangedEventArgs> StatusChanged;
         public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
 
         public Guid Id { get; init; } = Guid.NewGuid();
         public string ClientName { get; private set; }
-        public Encoding Encoding { get; set; }
 
         private readonly TcpClient _client;
-
+        private readonly Encoding _encoding;
 
         public Session(TcpClient client, Encoding encoding)
         {
             _client = client;
-            Encoding = encoding;
+            _encoding = encoding;
         }
 
-        public async Task RunSessionLifecycleAsync(CancellationToken token)
+        protected override async Task Start(CancellationToken token)
         {
-            Exception exception = null;
-            try
+            var stream = _client.GetStream();
+            // Получаем имя клиента
+            var readNameBuffer = new byte[_client.ReceiveBufferSize];
+            var nameSize = await stream.ReadAsync(readNameBuffer, token).ConfigureAwait(false);
+            ClientName = _encoding.GetString(readNameBuffer, 0, nameSize);
+        }
+
+        protected override async Task<bool> Run(CancellationToken token)
+        {
+            var stream = _client.GetStream();
+
+            var readBuffer = new byte[_client.ReceiveBufferSize];
+            var readSize = await stream.ReadAsync(readBuffer, token).ConfigureAwait(false);
+            if (readSize == 0)
             {
-                var stream = _client.GetStream();
-
-                // Получаем имя клиента
-                var readNameBuffer = new byte[_client.ReceiveBufferSize];
-                var nameSize = await stream.ReadAsync(readNameBuffer, token).ConfigureAwait(false);
-                ClientName = Encoding.GetString(readNameBuffer, 0, nameSize);
-
-                var sessionConnectedArgs = new SessionStatusChangedEventArgs(true);
-                StatusChanged?.Invoke(this, sessionConnectedArgs);
-
-                while (!token.IsCancellationRequested)
-                {
-                    var readBuffer = new byte[_client.ReceiveBufferSize];
-                    var readSize = await stream.ReadAsync(readBuffer, token).ConfigureAwait(false);
-                    if (readSize == 0)
-                    {
-                        break;
-                    }
-                    var sessionMessage = Encoding.GetString(readBuffer, 0, readSize);
-                    var responseMessage = HandleClientMessage(sessionMessage);
-
-                    var messageRecievedArgs = new ClientMessageRecievedEventArgs(sessionMessage, responseMessage);
-                    ClientMessageRecieved?.Invoke(this, messageRecievedArgs);
-
-                    var writeBuffer = Encoding.GetBytes(responseMessage);
-                    await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
-                }
+                return false;
             }
-            catch (IOException ioEx)
-            {
-                exception = ioEx.InnerException;
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-            finally
-            {
-                // close session
-                _client.Dispose();
-                var disconnectedArgs = new SessionStatusChangedEventArgs(false, exception);
-                StatusChanged?.Invoke(this, disconnectedArgs);
-            }
+            var sessionMessage = _encoding.GetString(readBuffer, 0, readSize);
+            var responseMessage = HandleClientMessage(sessionMessage);
+
+            var messageRecievedArgs = new ClientMessageRecievedEventArgs(sessionMessage, responseMessage);
+            ClientMessageRecieved?.Invoke(this, messageRecievedArgs);
+
+            var writeBuffer = _encoding.GetBytes(responseMessage);
+            await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
+            return true;
+        }
+
+        protected override void End()
+        {
+            _client?.Dispose();
         }
 
         private string HandleClientMessage(string clientMessage)

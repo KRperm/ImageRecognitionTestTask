@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageRecognitionTestTask.Lifetime;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -8,65 +9,20 @@ using System.Threading.Tasks;
 
 namespace ImageRecognitionTestTask.Client
 {
-    public class AppClient : IDisposable
+    public class AppClient : LifetimeObjectBase
     {
-        public enum Status { Disconnected, Connected, AwaitingConnection }
-
-        public event EventHandler<ClientStatusChangedEventArgs> StatusChanged;
         public event EventHandler<ServerMessageRecievedEventArgs> MessageRecieved;
 
-        public Encoding Encoding { get; set; } = Encoding.UTF8;
         private TcpClient _client;
+        private readonly IPEndPoint _endPoint;
+        private readonly string _clientName;
+        private readonly Encoding _encoding;
 
-        public async Task RunClientLifecycleAsync(IPEndPoint endPoint, string clientName, CancellationToken token)
+        public AppClient(IPEndPoint endPoint, string clientName, Encoding encoding)
         {
-            if (_client is not null)
-            {
-                return;
-            }
-
-            Exception exception = null;
-            try
-            {
-                _client = new TcpClient();
-                var awaitingArgs = new ClientStatusChangedEventArgs(Status.AwaitingConnection);
-                StatusChanged?.Invoke(this, awaitingArgs);
-                await _client.ConnectAsync(endPoint, token).ConfigureAwait(false);
-                await SendMessageAsync(clientName, token).ConfigureAwait(false);
-                var connectedArgs = new ClientStatusChangedEventArgs(Status.Connected);
-                StatusChanged?.Invoke(this, connectedArgs);
-
-                // Переодическое получение данных
-                while (!token.IsCancellationRequested)
-                {
-                    var stream = _client.GetStream();
-                    var readBuffer = new byte[_client.ReceiveBufferSize];
-                    var readSize = await stream.ReadAsync(readBuffer, token).ConfigureAwait(false);
-                    if (readSize == 0)
-                    {
-                        break;
-                    }
-                    var serverMessage = Encoding.GetString(readBuffer, 0, readSize);
-                    var messageArgs = new ServerMessageRecievedEventArgs(serverMessage);
-                    MessageRecieved?.Invoke(this, messageArgs);
-                }
-            }
-            catch (IOException ioEx)
-            {
-                exception = ioEx.InnerException;
-            }
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-            finally
-            {
-                // disconnected
-                _client.Dispose();
-                _client = null;
-                var disconnectedArgs = new ClientStatusChangedEventArgs(Status.Disconnected, exception);
-                StatusChanged?.Invoke(this, disconnectedArgs);
-            }
+            _endPoint = endPoint;
+            _clientName = clientName;
+            _encoding = encoding;
         }
 
         public async Task SendMessageAsync(string message, CancellationToken token)
@@ -76,14 +32,35 @@ namespace ImageRecognitionTestTask.Client
                 return;
             }
             var stream = _client.GetStream();
-            var writeBuffer = Encoding.GetBytes(message);
+            var writeBuffer = _encoding.GetBytes(message);
             await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
         }
 
-        public void Dispose()
+        protected override async Task Start(CancellationToken token)
+        {
+            _client = new TcpClient();
+            await _client.ConnectAsync(_endPoint, token).ConfigureAwait(false);
+            await SendMessageAsync(_clientName, token).ConfigureAwait(false);
+        }
+
+        protected override async Task<bool> Run(CancellationToken token)
+        {
+            var stream = _client.GetStream();
+            var readBuffer = new byte[_client.ReceiveBufferSize];
+            var readSize = await stream.ReadAsync(readBuffer, token).ConfigureAwait(false);
+            if (readSize == 0)
+            {
+                return false;
+            }
+            var serverMessage = _encoding.GetString(readBuffer, 0, readSize);
+            var messageArgs = new ServerMessageRecievedEventArgs(serverMessage);
+            MessageRecieved?.Invoke(this, messageArgs);
+            return true;
+        }
+
+        protected override void End()
         {
             _client?.Dispose();
-            _client?.Close();
         }
     }
 }
