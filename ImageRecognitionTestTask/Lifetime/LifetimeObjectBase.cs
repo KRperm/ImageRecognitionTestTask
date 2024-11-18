@@ -38,11 +38,11 @@ namespace ImageRecognitionTestTask.Lifetime
             try
             {
                 CurrentStatus = Status.StartingUp;
-                await Start(linkedTokenSource.Token).ConfigureAwait(false);
+                await StartAsync(linkedTokenSource.Token).ConfigureAwait(false);
                 CurrentStatus = Status.Running;
                 while (!linkedTokenSource.Token.IsCancellationRequested)
                 {
-                    var continueRunning = await Run(linkedTokenSource.Token).ConfigureAwait(false);
+                    var continueRunning = await RunAsync(linkedTokenSource.Token).ConfigureAwait(false);
                     if (!continueRunning)
                     {
                         break;
@@ -59,8 +59,8 @@ namespace ImageRecognitionTestTask.Lifetime
             }
         }
 
-        protected abstract Task Start(CancellationToken token);
-        protected abstract Task<bool> Run(CancellationToken token);
+        protected abstract Task StartAsync(CancellationToken token);
+        protected abstract Task<bool> RunAsync(CancellationToken token);
         protected abstract void End();
 
         public void Dispose()

@@ -1,4 +1,6 @@
-﻿namespace ImageRecognitionTestTask
+﻿using ImageRecognitionTestTask.Database;
+
+namespace ImageRecognitionTestTask
 {
     partial class ServerUserControl
     {
@@ -29,12 +31,10 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
             layoutControl1 = new DevExpress.XtraLayout.LayoutControl();
+            PictureEdit = new DevExpress.XtraEditors.PictureEdit();
             ObjectCountLabel = new DevExpress.XtraEditors.LabelControl();
-            HSmartWindowControl = new HalconDotNet.HSmartWindowControl();
             ImagesList = new DevExpress.XtraEditors.ListBoxControl();
-            ImagesBindingSource = new System.Windows.Forms.BindingSource(components);
             StopServerButton = new DevExpress.XtraEditors.SimpleButton();
             LogEdit = new DevExpress.XtraEditors.MemoEdit();
             PortEdit = new DevExpress.XtraEditors.SpinEdit();
@@ -45,8 +45,8 @@
             layoutControlGroup1 = new DevExpress.XtraLayout.LayoutControlGroup();
             splitterItem1 = new DevExpress.XtraLayout.SplitterItem();
             layoutControlItem6 = new DevExpress.XtraLayout.LayoutControlItem();
-            layoutControlItem5 = new DevExpress.XtraLayout.LayoutControlItem();
             layoutControlItem7 = new DevExpress.XtraLayout.LayoutControlItem();
+            layoutControlItem5 = new DevExpress.XtraLayout.LayoutControlItem();
             layoutControlGroup2 = new DevExpress.XtraLayout.LayoutControlGroup();
             layoutControlItem3 = new DevExpress.XtraLayout.LayoutControlItem();
             layoutControlItem4 = new DevExpress.XtraLayout.LayoutControlItem();
@@ -54,8 +54,8 @@
             emptySpaceItem1 = new DevExpress.XtraLayout.EmptySpaceItem();
             ((System.ComponentModel.ISupportInitialize)layoutControl1).BeginInit();
             layoutControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)PictureEdit.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ImagesList).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)ImagesBindingSource).BeginInit();
             ((System.ComponentModel.ISupportInitialize)LogEdit.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)PortEdit.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)Root).BeginInit();
@@ -64,8 +64,8 @@
             ((System.ComponentModel.ISupportInitialize)layoutControlGroup1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)splitterItem1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem6).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)layoutControlItem5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem7).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)layoutControlItem5).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlGroup2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem4).BeginInit();
@@ -75,8 +75,8 @@
             // 
             // layoutControl1
             // 
+            layoutControl1.Controls.Add(PictureEdit);
             layoutControl1.Controls.Add(ObjectCountLabel);
-            layoutControl1.Controls.Add(HSmartWindowControl);
             layoutControl1.Controls.Add(ImagesList);
             layoutControl1.Controls.Add(StopServerButton);
             layoutControl1.Controls.Add(LogEdit);
@@ -91,6 +91,19 @@
             layoutControl1.TabIndex = 0;
             layoutControl1.Text = "layoutControl1";
             // 
+            // PictureEdit
+            // 
+            PictureEdit.Location = new System.Drawing.Point(155, 104);
+            PictureEdit.Name = "PictureEdit";
+            PictureEdit.Properties.NullText = "Изображение не найдено";
+            PictureEdit.Properties.ReadOnly = true;
+            PictureEdit.Properties.ShowCameraMenuItem = DevExpress.XtraEditors.Controls.CameraMenuItemVisibility.Auto;
+            PictureEdit.Properties.ShowMenu = false;
+            PictureEdit.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Squeeze;
+            PictureEdit.Size = new System.Drawing.Size(432, 295);
+            PictureEdit.StyleController = layoutControl1;
+            PictureEdit.TabIndex = 8;
+            // 
             // ObjectCountLabel
             // 
             ObjectCountLabel.Location = new System.Drawing.Point(155, 87);
@@ -100,26 +113,9 @@
             ObjectCountLabel.TabIndex = 7;
             ObjectCountLabel.Text = "labelControl1";
             // 
-            // HSmartWindowControl
-            // 
-            HSmartWindowControl.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            HSmartWindowControl.AutoValidate = System.Windows.Forms.AutoValidate.EnableAllowFocusChange;
-            HSmartWindowControl.HDoubleClickToFitContent = true;
-            HSmartWindowControl.HDrawingObjectsModifier = HalconDotNet.HSmartWindowControl.DrawingObjectsModifier.None;
-            HSmartWindowControl.HImagePart = new System.Drawing.Rectangle(0, 0, 1280, 960);
-            HSmartWindowControl.HKeepAspectRatio = true;
-            HSmartWindowControl.HMoveContent = true;
-            HSmartWindowControl.HZoomContent = HalconDotNet.HSmartWindowControl.ZoomContent.WheelForwardZoomsIn;
-            HSmartWindowControl.Location = new System.Drawing.Point(155, 104);
-            HSmartWindowControl.Margin = new System.Windows.Forms.Padding(0);
-            HSmartWindowControl.Name = "HSmartWindowControl";
-            HSmartWindowControl.Size = new System.Drawing.Size(432, 295);
-            HSmartWindowControl.TabIndex = 6;
-            HSmartWindowControl.WindowSize = new System.Drawing.Size(432, 295);
-            // 
             // ImagesList
             // 
-            ImagesList.DataSource = ImagesBindingSource;
+            ImagesList.DataSource = typeof(ImageRecord);
             ImagesList.DisplayMember = "Path";
             ImagesList.Location = new System.Drawing.Point(24, 87);
             ImagesList.Name = "ImagesList";
@@ -127,10 +123,6 @@
             ImagesList.StyleController = layoutControl1;
             ImagesList.TabIndex = 5;
             ImagesList.ValueMember = "Id";
-            // 
-            // ImagesBindingSource
-            // 
-            ImagesBindingSource.DataSource = typeof(ImageRecord);
             // 
             // StopServerButton
             // 
@@ -204,7 +196,7 @@
             // 
             // layoutControlGroup1
             // 
-            layoutControlGroup1.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] { splitterItem1, layoutControlItem6, layoutControlItem5, layoutControlItem7 });
+            layoutControlGroup1.Items.AddRange(new DevExpress.XtraLayout.BaseLayoutItem[] { splitterItem1, layoutControlItem6, layoutControlItem7, layoutControlItem5 });
             layoutControlGroup1.Location = new System.Drawing.Point(0, 0);
             layoutControlGroup1.Name = "layoutControlGroup1";
             layoutControlGroup1.Size = new System.Drawing.Size(567, 316);
@@ -226,17 +218,6 @@
             layoutControlItem6.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem6.TextVisible = false;
             // 
-            // layoutControlItem5
-            // 
-            layoutControlItem5.Control = HSmartWindowControl;
-            layoutControlItem5.Location = new System.Drawing.Point(131, 17);
-            layoutControlItem5.MinSize = new System.Drawing.Size(104, 24);
-            layoutControlItem5.Name = "layoutControlItem5";
-            layoutControlItem5.Size = new System.Drawing.Size(436, 299);
-            layoutControlItem5.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
-            layoutControlItem5.TextSize = new System.Drawing.Size(0, 0);
-            layoutControlItem5.TextVisible = false;
-            // 
             // layoutControlItem7
             // 
             layoutControlItem7.Control = ObjectCountLabel;
@@ -248,6 +229,15 @@
             layoutControlItem7.SizeConstraintsType = DevExpress.XtraLayout.SizeConstraintsType.Custom;
             layoutControlItem7.TextSize = new System.Drawing.Size(0, 0);
             layoutControlItem7.TextVisible = false;
+            // 
+            // layoutControlItem5
+            // 
+            layoutControlItem5.Control = PictureEdit;
+            layoutControlItem5.Location = new System.Drawing.Point(131, 17);
+            layoutControlItem5.Name = "layoutControlItem5";
+            layoutControlItem5.Size = new System.Drawing.Size(436, 299);
+            layoutControlItem5.TextSize = new System.Drawing.Size(0, 0);
+            layoutControlItem5.TextVisible = false;
             // 
             // layoutControlGroup2
             // 
@@ -313,8 +303,8 @@
             Size = new System.Drawing.Size(611, 423);
             ((System.ComponentModel.ISupportInitialize)layoutControl1).EndInit();
             layoutControl1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)PictureEdit.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)ImagesList).EndInit();
-            ((System.ComponentModel.ISupportInitialize)ImagesBindingSource).EndInit();
             ((System.ComponentModel.ISupportInitialize)LogEdit.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)PortEdit.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)Root).EndInit();
@@ -323,8 +313,8 @@
             ((System.ComponentModel.ISupportInitialize)layoutControlGroup1).EndInit();
             ((System.ComponentModel.ISupportInitialize)splitterItem1).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem6).EndInit();
-            ((System.ComponentModel.ISupportInitialize)layoutControlItem5).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem7).EndInit();
+            ((System.ComponentModel.ISupportInitialize)layoutControlItem5).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlGroup2).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem3).EndInit();
             ((System.ComponentModel.ISupportInitialize)layoutControlItem4).EndInit();
@@ -352,10 +342,9 @@
         private DevExpress.XtraLayout.LayoutControlGroup layoutControlGroup2;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem3;
         private DevExpress.XtraLayout.EmptySpaceItem emptySpaceItem1;
-        private System.Windows.Forms.BindingSource ImagesBindingSource;
-        private HalconDotNet.HSmartWindowControl HSmartWindowControl;
-        private DevExpress.XtraLayout.LayoutControlItem layoutControlItem5;
         private DevExpress.XtraEditors.LabelControl ObjectCountLabel;
         private DevExpress.XtraLayout.LayoutControlItem layoutControlItem7;
+        private DevExpress.XtraEditors.PictureEdit PictureEdit;
+        private DevExpress.XtraLayout.LayoutControlItem layoutControlItem5;
     }
 }

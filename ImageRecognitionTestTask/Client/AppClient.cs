@@ -1,4 +1,5 @@
-﻿using ImageRecognitionTestTask.Lifetime;
+﻿using DevExpress.Pdf.Native.BouncyCastle.Utilities.IO;
+using ImageRecognitionTestTask.Lifetime;
 using System;
 using System.IO;
 using System.Net;
@@ -36,16 +37,17 @@ namespace ImageRecognitionTestTask.Client
             await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
         }
 
-        protected override async Task Start(CancellationToken token)
+        protected override async Task StartAsync(CancellationToken token)
         {
             _client = new TcpClient();
             await _client.ConnectAsync(_endPoint, token).ConfigureAwait(false);
             await SendMessageAsync(_clientName, token).ConfigureAwait(false);
         }
 
-        protected override async Task<bool> Run(CancellationToken token)
+        protected override async Task<bool> RunAsync(CancellationToken token)
         {
             var stream = _client.GetStream();
+
             var readBuffer = new byte[_client.ReceiveBufferSize];
             var readSize = await stream.ReadAsync(readBuffer, token).ConfigureAwait(false);
             if (readSize == 0)
@@ -60,6 +62,7 @@ namespace ImageRecognitionTestTask.Client
 
         protected override void End()
         {
+            _client?.Close();
             _client?.Dispose();
         }
     }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 
-namespace ImageRecognitionTestTask
+namespace ImageRecognitionTestTask.Database
 {
     [PrimaryKey(nameof(Id))]
     public class ImageRecord

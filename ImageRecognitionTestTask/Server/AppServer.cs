@@ -12,6 +12,7 @@ namespace ImageRecognitionTestTask.Server
     {
         public event EventHandler<LifetimeObjectStatusChangedEventArgs> SessionStatusChanged;
         public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
+        public event EventHandler<ImagePathRecievedEventArgs> ClientImagePathRecieved;
 
         private TcpListener _listener;
         private readonly IPEndPoint _endPoint;
@@ -23,24 +24,26 @@ namespace ImageRecognitionTestTask.Server
             _endPoint = endPoint;
         }
 
-        protected override Task Start(CancellationToken token)
+        protected override Task StartAsync(CancellationToken token)
         {
             _listener = new TcpListener(_endPoint);
             _listener.Start();
             return Task.CompletedTask;
         }
 
-        protected override async Task<bool> Run(CancellationToken token)
+        protected override async Task<bool> RunAsync(CancellationToken token)
         {
             var client = await _listener.AcceptTcpClientAsync(token).ConfigureAwait(false);
 
             var session = new Session(client, _encoding);
             session.StatusChanged += OnSessionStatusChanged;
             session.ClientMessageRecieved += OnClientMessageRecieved;
+            session.ImagePathRecieved += OnClientImagePathRecieved;
             _ = session.RunLifetime(token).ContinueWith(_ =>
             {
                 session.StatusChanged -= OnSessionStatusChanged;
                 session.ClientMessageRecieved -= OnClientMessageRecieved;
+                session.ImagePathRecieved -= OnClientImagePathRecieved;
             }, CancellationToken.None);
             return true;
         }
@@ -59,6 +62,11 @@ namespace ImageRecognitionTestTask.Server
         private void OnSessionStatusChanged(object sender, LifetimeObjectStatusChangedEventArgs e)
         {
             SessionStatusChanged?.Invoke(sender, e);
+        }
+
+        private void OnClientImagePathRecieved(object sender, ImagePathRecievedEventArgs e)
+        {
+            ClientImagePathRecieved?.Invoke(sender, e);
         }
     }
 }

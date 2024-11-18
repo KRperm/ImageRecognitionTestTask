@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace ImageRecognitionTestTask
+namespace ImageRecognitionTestTask.Database
 {
-    public class ApplicationContext : DbContext
+    public class ImagesContext : DbContext
     {
         public DbSet<ImageRecord> Images => Set<ImageRecord>();
-        public ApplicationContext() 
+        public ImagesContext()
         {
             Database.EnsureCreated();
         }

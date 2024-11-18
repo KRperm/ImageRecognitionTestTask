@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using System.Threading;
 using HalconDotNet;
 using ImageRecognitionTestTask.Lifetime;
+using ImageRecognitionTestTask.Database;
 
 namespace ImageRecognitionTestTask.Server
 {
     public class Session : LifetimeObjectBase
     {
         public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
+        public event EventHandler<ImagePathRecievedEventArgs> ImagePathRecieved;
 
         public Guid Id { get; init; } = Guid.NewGuid();
         public string ClientName { get; private set; }
@@ -24,7 +26,7 @@ namespace ImageRecognitionTestTask.Server
             _encoding = encoding;
         }
 
-        protected override async Task Start(CancellationToken token)
+        protected override async Task StartAsync(CancellationToken token)
         {
             var stream = _client.GetStream();
             // Получаем имя клиента
@@ -33,7 +35,7 @@ namespace ImageRecognitionTestTask.Server
             ClientName = _encoding.GetString(readNameBuffer, 0, nameSize);
         }
 
-        protected override async Task<bool> Run(CancellationToken token)
+        protected override async Task<bool> RunAsync(CancellationToken token)
         {
             var stream = _client.GetStream();
 
@@ -43,12 +45,11 @@ namespace ImageRecognitionTestTask.Server
             {
                 return false;
             }
-            var sessionMessage = _encoding.GetString(readBuffer, 0, readSize);
-            var responseMessage = HandleClientMessage(sessionMessage);
+            var clientMessage = _encoding.GetString(readBuffer, 0, readSize);
+            var responseMessage = HandleClientMessage(clientMessage);
 
-            var messageRecievedArgs = new ClientMessageRecievedEventArgs(sessionMessage, responseMessage);
+            var messageRecievedArgs = new ClientMessageRecievedEventArgs(clientMessage, responseMessage);
             ClientMessageRecieved?.Invoke(this, messageRecievedArgs);
-
             var writeBuffer = _encoding.GetBytes(responseMessage);
             await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
             return true;
@@ -61,28 +62,18 @@ namespace ImageRecognitionTestTask.Server
 
         private string HandleClientMessage(string clientMessage)
         {
-            if (TryDetectObjects(clientMessage, out var region))
+            if (TryCountObjectInImage(clientMessage, out var objectCount))
             {
-                using var appContext = new ApplicationContext();
-
-                var objectCount = region.CountObj();
-                var record = new ImageRecord
-                {
-                    ObjectCount = region.CountObj(),
-                    Path = clientMessage,
-                };
-                appContext.Images.Add(record);
-                appContext.SaveChanges();
-
-                return objectCount == 50 ? "OK" : "NG";
+                var imagePathRecieved = new ImagePathRecievedEventArgs(clientMessage, objectCount);
+                ImagePathRecieved?.Invoke(this, imagePathRecieved);
+                return objectCount > 50 ? "OK" : "NG";
             }
-
-            return $"SERVER ECHO: {clientMessage}";
+            return $"Сообщение '{clientMessage}' не является путём к валидному изображению";
         }
 
-        private bool TryDetectObjects(string path, out HRegion region)
+        private bool TryCountObjectInImage(string path, out int objectCount)
         {
-            region = null;
+            objectCount = 0;
             HImage image;
             try
             {
@@ -92,11 +83,12 @@ namespace ImageRecognitionTestTask.Server
             {
                 return false;
             }
-            region = image.GrayErosionShape(20d, 20d, "octagon")
+            var region = image.GrayErosionShape(20d, 20d, "octagon")
                     .Threshold(90d, 255d)
                     .ErosionCircle(3d)
                     .DilationCircle(5d)
                     .Connection();
+            objectCount = region.CountObj();
             return true;
         }
     }
