@@ -93,7 +93,7 @@
             layoutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             layoutControl1.Location = new System.Drawing.Point(0, 0);
             layoutControl1.Name = "layoutControl1";
-            layoutControl1.OptionsCustomizationForm.DesignTimeCustomizationFormPositionAndSize = new System.Drawing.Rectangle(2567, 472, 650, 400);
+            layoutControl1.OptionsCustomizationForm.DesignTimeCustomizationFormPositionAndSize = new System.Drawing.Rectangle(2836, 408, 650, 400);
             layoutControl1.Root = Root;
             layoutControl1.Size = new System.Drawing.Size(650, 325);
             layoutControl1.TabIndex = 0;
@@ -140,12 +140,15 @@
             // ServerResponseLabel
             // 
             ServerResponseLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            ServerResponseLabel.Location = new System.Drawing.Point(463, 202);
+            ServerResponseLabel.Appearance.Options.UseTextOptions = true;
+            ServerResponseLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            ServerResponseLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            ServerResponseLabel.Location = new System.Drawing.Point(320, 104);
             ServerResponseLabel.Name = "ServerResponseLabel";
-            ServerResponseLabel.Size = new System.Drawing.Size(32, 13);
+            ServerResponseLabel.Size = new System.Drawing.Size(318, 209);
             ServerResponseLabel.StyleController = layoutControl1;
             ServerResponseLabel.TabIndex = 1;
-            ServerResponseLabel.Text = "Ответ";
+            ServerResponseLabel.Text = "Ответ qweqeqew";
             // 
             // MessageEdit
             // 
@@ -320,8 +323,6 @@
             // 
             // layoutControlItem6
             // 
-            layoutControlItem6.ContentHorzAlignment = DevExpress.Utils.HorzAlignment.Center;
-            layoutControlItem6.ContentVertAlignment = DevExpress.Utils.VertAlignment.Center;
             layoutControlItem6.Control = ServerResponseLabel;
             layoutControlItem6.Location = new System.Drawing.Point(308, 92);
             layoutControlItem6.MinSize = new System.Drawing.Size(36, 17);

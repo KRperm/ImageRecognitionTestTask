@@ -35,7 +35,7 @@ namespace ImageRecognitionTestTask
             fluent.SetBinding(ServerResponseLabel, e => e.Text, x => x.ServerResponse);
             fluent.SetBinding(MessageEdit, e => e.Text, x => x.Message);
             fluent.SetBinding(MessageEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Connected);
-            fluent.SetBinding(IpEdit, e => e.Text, x => x.ServerAddress, 
+            fluent.SetBinding(IpEdit, e => e.Text, x => x.ServerAddress,
                 modelState => modelState?.ToString(),
                 editState => IPAddress.TryParse(editState, out var address) ? address : null);
             fluent.SetBinding(IpEdit, e => e.Enabled, x => x.Status, modelState => modelState == ClientViewModel.ConnectionStatus.Disconnected);
