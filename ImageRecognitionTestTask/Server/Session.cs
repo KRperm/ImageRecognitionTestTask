@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using System.Threading;
 using HalconDotNet;
 using ImageRecognitionTestTask.Lifetime;
-using ImageRecognitionTestTask.Database;
 
 namespace ImageRecognitionTestTask.Server
 {
@@ -81,6 +80,7 @@ namespace ImageRecognitionTestTask.Server
             }
             catch
             {
+                // TODO: логи
                 return false;
             }
             var region = image.GrayErosionShape(20d, 20d, "octagon")

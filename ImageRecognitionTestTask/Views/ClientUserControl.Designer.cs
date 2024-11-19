@@ -139,16 +139,17 @@
             // 
             // ServerResponseLabel
             // 
-            ServerResponseLabel.Anchor = System.Windows.Forms.AnchorStyles.Top;
             ServerResponseLabel.Appearance.Options.UseTextOptions = true;
             ServerResponseLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             ServerResponseLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            ServerResponseLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            ServerResponseLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             ServerResponseLabel.Location = new System.Drawing.Point(320, 104);
             ServerResponseLabel.Name = "ServerResponseLabel";
             ServerResponseLabel.Size = new System.Drawing.Size(318, 209);
             ServerResponseLabel.StyleController = layoutControl1;
             ServerResponseLabel.TabIndex = 1;
-            ServerResponseLabel.Text = "Ответ qweqeqew";
+            ServerResponseLabel.Text = "Ответ";
             // 
             // MessageEdit
             // 
@@ -193,6 +194,8 @@
             ServerStatusLabel.Appearance.Options.UseTextOptions = true;
             ServerStatusLabel.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
             ServerStatusLabel.Appearance.TextOptions.VAlignment = DevExpress.Utils.VertAlignment.Center;
+            ServerStatusLabel.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            ServerStatusLabel.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
             ServerStatusLabel.Location = new System.Drawing.Point(12, 158);
             ServerStatusLabel.Name = "ServerStatusLabel";
             ServerStatusLabel.Size = new System.Drawing.Size(293, 155);

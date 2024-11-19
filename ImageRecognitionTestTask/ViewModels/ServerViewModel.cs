@@ -64,7 +64,16 @@ namespace ImageRecognitionTestTask.ViewModels
 
         protected void NotifySelectedImageIdChanged()
         {
-            var record = _dbContext.Images.Single(x => x.Id == SelectedImageId);
+            SelectedImage?.Dispose();
+            SelectedImage = null;
+            SelectedImageObjectCount = 0;
+
+            if (_dbContext.Images.Local.Count <= 0)
+            {
+                return;
+            }
+
+            var record = _dbContext.Images.Local.Single(x => x.Id == SelectedImageId);
             SelectedImageObjectCount = record.ObjectCount;
 
             Image newImage;
@@ -76,7 +85,6 @@ namespace ImageRecognitionTestTask.ViewModels
             {
                 newImage = null;
             }
-            SelectedImage?.Dispose();
             SelectedImage = newImage;
         }
 
