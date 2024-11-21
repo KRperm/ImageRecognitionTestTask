@@ -26,7 +26,7 @@ namespace ImageRecognitionTestTask.Lifetime
         private Exception _lifetimeExpection = null;
         private readonly CancellationTokenSource _disposeTokenSource = new();
 
-        public async Task RunLifetime(CancellationToken token)
+        public async Task RunLifetimeAsync(CancellationToken token)
         {
             ObjectDisposedException.ThrowIf(CurrentStatus == Status.Finished, this);
             if (CurrentStatus == Status.Running)

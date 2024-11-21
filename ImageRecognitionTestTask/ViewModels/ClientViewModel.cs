@@ -54,7 +54,7 @@ namespace ImageRecognitionTestTask.ViewModels
             {
                 _client.StatusChanged += OnStatusChanged;
                 _client.MessageRecieved += OnServerMessageRecieved;
-                await _client.RunLifetime(asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
+                await _client.RunLifetimeAsync(asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
                 _client.StatusChanged -= OnStatusChanged;
                 _client.MessageRecieved -= OnServerMessageRecieved;
             }

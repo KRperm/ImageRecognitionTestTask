@@ -55,7 +55,7 @@ namespace ImageRecognitionTestTask.ViewModels
             server.SessionStatusChanged += OnServerSessionStatusChanged;
             server.ClientMessageRecieved += OnServerSessionMessageRecieved;
             server.ClientImagePathRecieved += OnClientImagePathRecieved;
-            await server.RunLifetime(asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
+            await server.RunLifetimeAsync(asyncCommand.CancellationTokenSource.Token).ConfigureAwait(false);
             server.StatusChanged -= OnServerStatusChanged;
             server.SessionStatusChanged -= OnServerSessionStatusChanged;
             server.ClientMessageRecieved -= OnServerSessionMessageRecieved;

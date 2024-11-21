@@ -39,7 +39,7 @@ namespace ImageRecognitionTestTask.Server
             session.StatusChanged += OnSessionStatusChanged;
             session.ClientMessageRecieved += OnClientMessageRecieved;
             session.ImagePathRecieved += OnClientImagePathRecieved;
-            _ = session.RunLifetime(token).ContinueWith(_ =>
+            _ = session.RunLifetimeAsync(token).ContinueWith(_ =>
             {
                 session.StatusChanged -= OnSessionStatusChanged;
                 session.ClientMessageRecieved -= OnClientMessageRecieved;
