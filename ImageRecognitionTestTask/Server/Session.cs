@@ -105,10 +105,10 @@ namespace ImageRecognitionTestTask.Server
                 // TODO: логи
                 return false;
             }
-            var region = image.GrayErosionShape(20d, 20d, "octagon")
-                    .Threshold(90d, 255d)
-                    .ErosionCircle(3d)
-                    .DilationCircle(5d)
+            var region = image.GrayErosionShape(15d, 15d, "octagon")
+                    .Threshold(110d, 255d)
+                    .DilationCircle(9d)
+                    .ErosionCircle(5d)
                     .Connection();
             objectCount = region.CountObj();
             return true;
