@@ -2,10 +2,6 @@
 using DevExpress.Utils.MVVM;
 using ImageRecognitionTestTask.ViewModels;
 using System;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using HalconDotNet;
-using ImageRecognitionTestTask.Database;
 
 namespace ImageRecognitionTestTask
 {

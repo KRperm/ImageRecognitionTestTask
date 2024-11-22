@@ -8,9 +8,20 @@ using ImageRecognitionTestTask.Lifetime;
 
 namespace ImageRecognitionTestTask.Server
 {
+    /// <summary>
+    /// Сессия сервера. Символизирует подключение к определённому клиенту.
+    /// Во время инициализации, сессия ожидает что клиент сразу же пришлёт своё имя.
+    /// Далее сессия всегда ждёт сообщение от клиента. При получении сообщения, сессия обрабатывает сообщение клиента и отправляет назад ответ
+    /// </summary>
     public class Session : LifetimeObjectBase
     {
+        /// <summary>
+        /// Сообщение от клиента было получено
+        /// </summary>
         public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
+        /// <summary>
+        /// Получен путь до валидной картинки
+        /// </summary>
         public event EventHandler<ImagePathRecievedEventArgs> ImagePathRecieved;
 
         public Guid Id { get; init; } = Guid.NewGuid();
@@ -46,9 +57,6 @@ namespace ImageRecognitionTestTask.Server
             }
             var clientMessage = _encoding.GetString(readBuffer, 0, readSize);
             var responseMessage = HandleClientMessage(clientMessage);
-
-            var messageRecievedArgs = new ClientMessageRecievedEventArgs(clientMessage, responseMessage);
-            ClientMessageRecieved?.Invoke(this, messageRecievedArgs);
             var writeBuffer = _encoding.GetBytes(responseMessage);
             await stream.WriteAsync(writeBuffer, token).ConfigureAwait(false);
             return true;
@@ -59,17 +67,31 @@ namespace ImageRecognitionTestTask.Server
             _client?.Dispose();
         }
 
+        /// <summary>
+        /// Обрабатывает входящие сообщения от клиента
+        /// </summary>
+        /// <param name="clientMessage">Сообщение клиента</param>
+        /// <returns>Ответ сервера который отправится клиенту</returns>
         private string HandleClientMessage(string clientMessage)
         {
+            var responseMessage = $"Сообщение '{clientMessage}' не является путём к валидному изображению";
             if (TryCountObjectInImage(clientMessage, out var objectCount))
             {
                 var imagePathRecieved = new ImagePathRecievedEventArgs(clientMessage, objectCount);
                 ImagePathRecieved?.Invoke(this, imagePathRecieved);
-                return objectCount > 50 ? "OK" : "NG";
+                responseMessage = objectCount > 50 ? "OK" : "NG";
             }
-            return $"Сообщение '{clientMessage}' не является путём к валидному изображению";
+            var messageRecievedArgs = new ClientMessageRecievedEventArgs(clientMessage, responseMessage);
+            ClientMessageRecieved?.Invoke(this, messageRecievedArgs);
+            return responseMessage;
         }
 
+        /// <summary>
+        /// Пытается посчитать количесво предметов на изображении с помощью Halcon
+        /// </summary>
+        /// <param name="path">Путь к изображения</param>
+        /// <param name="objectCount">Количество изображений на картинке</param>
+        /// <returns>Получилось ли считать валидное изображение по пути</returns>
         private bool TryCountObjectInImage(string path, out int objectCount)
         {
             objectCount = 0;

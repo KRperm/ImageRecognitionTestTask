@@ -4,10 +4,23 @@ using System.Threading.Tasks;
 
 namespace ImageRecognitionTestTask.Lifetime
 {
+    /// <summary>
+    /// Базовый класс который реализует жизненый цикл объекта.
+    /// </summary>
     public abstract class LifetimeObjectBase : IDisposable
     {
+        /// <summary>
+        /// Состояния жизненого цикла.
+        /// Created - объект создан, но цикл не запущен.
+        /// StartingUp - Цикл запущен, но инициализация не прошла
+        /// Running - инициализация прошла и исполняется основная часть объекта
+        /// Finished - Жизненый цикл закончился
+        /// </summary>
         public enum Status { Created, StartingUp, Running, Finished }
 
+        /// <summary>
+        /// Событие которое вызывается при смене состояния жизненого цикла.
+        /// </summary>
         public event EventHandler<LifetimeObjectStatusChangedEventArgs> StatusChanged;
 
         private Status _currentStatus = Status.Created;
@@ -26,6 +39,12 @@ namespace ImageRecognitionTestTask.Lifetime
         private Exception _lifetimeExpection = null;
         private readonly CancellationTokenSource _disposeTokenSource = new();
 
+        /// <summary>
+        /// Запускает жизненый цикл объекта. 
+        /// Цикл будет работать до тех пор пока не перегруженные функции не выкинут исключение
+        /// </summary>
+        /// <param name="token">Токен отмены для этого Task'а</param>
+        /// <returns>Task жизненого цикла</returns>
         public async Task RunLifetimeAsync(CancellationToken token)
         {
             ObjectDisposedException.ThrowIf(CurrentStatus == Status.Finished, this);
@@ -59,8 +78,21 @@ namespace ImageRecognitionTestTask.Lifetime
             }
         }
 
+        /// <summary>
+        /// Инициализирует данный объект при старте жизненого цикла
+        /// </summary>
+        /// <param name="token">Токен отмены для этого Task'а</param>
+        /// <returns>Task инициализации</returns>
         protected abstract Task StartAsync(CancellationToken token);
+        /// <summary>
+        /// Переодически выполняет эту функцию во время жизненого цикла
+        /// </summary>
+        /// <param name="token">Токен отмены для этого Task'а</param>
+        /// <returns>Task переодического выполнения</returns>
         protected abstract Task<bool> RunAsync(CancellationToken token);
+        /// <summary>
+        /// Высвобождает ресурсы в конце жизненого цикла или при вызове Dispose
+        /// </summary>
         protected abstract void End();
 
         public void Dispose()

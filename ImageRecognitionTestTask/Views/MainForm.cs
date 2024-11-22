@@ -1,5 +1,4 @@
-﻿using DevExpress.Mvvm.POCO;
-using DevExpress.Utils.MVVM;
+﻿using DevExpress.Utils.MVVM;
 using DevExpress.XtraEditors;
 
 namespace ImageRecognitionTestTask
@@ -9,8 +8,7 @@ namespace ImageRecognitionTestTask
         public MainForm()
         {
             InitializeComponent();
-            MVVMContext.RegisterFlyoutMessageBoxService();
-            
+            MVVMContext.RegisterFlyoutMessageBoxService();   
         }
     }
 }

@@ -8,10 +8,24 @@ using ImageRecognitionTestTask.Lifetime;
 
 namespace ImageRecognitionTestTask.Server
 {
+    /// <summary>
+    /// Сервер данного приложения.
+    /// Всегда ожидает новые подключения.
+    /// При новом подключении создаёт новую сессию.
+    /// </summary>
     public partial class AppServer : LifetimeObjectBase
     {
+        /// <summary>
+        /// Состояние одной из сессий поменялось.
+        /// </summary>
         public event EventHandler<LifetimeObjectStatusChangedEventArgs> SessionStatusChanged;
+        /// <summary>
+        /// От определённого клиента пришло сообщение
+        /// </summary>
         public event EventHandler<ClientMessageRecievedEventArgs> ClientMessageRecieved;
+        /// <summary>
+        /// От определённого клиента пришёл путь к валидной картинке
+        /// </summary>
         public event EventHandler<ImagePathRecievedEventArgs> ClientImagePathRecieved;
 
         private TcpListener _listener;

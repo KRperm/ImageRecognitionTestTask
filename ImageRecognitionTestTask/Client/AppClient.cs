@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace ImageRecognitionTestTask.Client
 {
+    /// <summary>
+    /// Клиент данного приложения.
+    /// Во время инициализации клиент отправляет своё имя.
+    /// Клиент всегда ожидает сообщение от сервера.
+    /// </summary>
     public class AppClient : LifetimeObjectBase
     {
         public event EventHandler<ServerMessageRecievedEventArgs> MessageRecieved;
@@ -26,6 +31,12 @@ namespace ImageRecognitionTestTask.Client
             _encoding = encoding;
         }
 
+        /// <summary>
+        /// Отправляет сообщение на сервер, если клиент к нему подключён
+        /// </summary>
+        /// <param name="message">сообщение для отправки</param>
+        /// <param name="token">Token для отмены данной задачи</param>
+        /// <returns>Task данной задачи</returns>
         public async Task SendMessageAsync(string message, CancellationToken token)
         {
             if (_client is null || !_client.Connected)
